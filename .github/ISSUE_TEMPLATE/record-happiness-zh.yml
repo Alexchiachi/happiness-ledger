@@ -1,0 +1,34 @@
+name: 🌸 存入一筆幸福或善意
+description: 記錄生活中的微小停頓、感恩或溫暖連結
+title: "【幸福存入】: "
+labels: ["happiness-record"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        大道至簡，生活由每一個微小的感知組成。在此留下您的善意或感恩紀錄。
+  - type: input
+    id: nickname
+    attributes:
+      label: 您的稱呼 / 筆名
+      placeholder: 例如：南投旅人、中年大叔、漫步者
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: 幸福微類型
+      options:
+        - ☕ 五感覺察（飲食、氣味、光影）
+        - 🤝 微小善意（給予、傾聽、微笑）
+        - 🍃 自然連結（草木、泥土、晨昏）
+        - 🧘 身心安頓（閱讀、冥想、停頓）
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: 幸福感知內容
+      placeholder: 描述當下的場景、氣味、心情或互動細節...
+    validations:
+      required: true
