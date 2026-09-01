@@ -78,7 +78,6 @@
       font-style: italic;
     }
 
-    /* 原生免登入表單容器 */
     .form-container {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -93,7 +92,6 @@
       margin-bottom: 1.2rem;
     }
 
-    /* 隱形蜜罐 (防機器人爬蟲) */
     .hp-field {
       display: none !important;
       visibility: hidden !important;
@@ -131,6 +129,18 @@
       border-color: var(--accent);
     }
 
+    /* 自訂類別展開樣式 */
+    .custom-category-group {
+      display: none;
+      margin-top: 0.6rem;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .btn-submit {
       width: 100%;
       padding: 0.85rem;
@@ -154,7 +164,6 @@
       cursor: not-allowed;
     }
 
-    /* 工具列（分隔線與隨機靈感按鈕） */
     .toolbar {
       display: flex;
       align-items: center;
@@ -187,7 +196,6 @@
       background: var(--accent-light);
     }
 
-    /* 幸福卡片列表 */
     .ledger-stream { display: flex; flex-direction: column; gap: 1.5rem; }
     .card {
       background: var(--card-bg);
@@ -227,7 +235,6 @@
     }
     .state-icon { font-size: 2rem; margin-bottom: 0.8rem; display: inline-block; }
 
-    /* 心靈 Toast 回饋視窗 */
     .toast-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -243,10 +250,7 @@
       transition: opacity 0.3s ease;
     }
 
-    .toast-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .toast-overlay.active { opacity: 1; pointer-events: auto; }
 
     .toast-card {
       background: #ffffff;
@@ -261,9 +265,7 @@
       transition: transform 0.3s ease;
     }
 
-    .toast-overlay.active .toast-card {
-      transform: translateY(0);
-    }
+    .toast-overlay.active .toast-card { transform: translateY(0); }
 
     .toast-poem {
       font-family: 'Noto Serif TC', serif;
@@ -305,10 +307,8 @@
       </div>
     </header>
 
-    <!-- 免登入原生全雙語表單 -->
     <section class="form-container">
       <form id="happiness-form">
-        <!-- 隱形蜜罐 (防止爬蟲機器人) -->
         <input type="text" id="hp_url" name="hp_url" class="hp-field" tabindex="-1" autocomplete="off">
 
         <div class="form-group">
@@ -318,12 +318,18 @@
         
         <div class="form-group">
           <label for="category">幸福微類型 <span class="label-en">/ Micro-Category</span></label>
-          <select id="category" required>
+          <select id="category" required onchange="handleCategoryChange(this)">
             <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察（飲食、氣味、光影） / Sensory Awareness (Taste, Aroma, Light)</option>
             <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意（給予、傾聽、微笑） / Subtle Kindness (Giving, Listening, Smiling)</option>
             <option value="🍃 自然連結 / Nature Connection">🍃 自然連結（草木、泥土、晨昏） / Nature Connection (Plants, Soil, Twilight)</option>
             <option value="🧘 身心安頓 / Inner Peace">🧘 身心安頓（閱讀、冥想、停頓） / Inner Peace (Reading, Meditation, Pausing)</option>
+            <option value="custom">✨ 其他幸福小事 / Other (自訂填入 / Custom)</option>
           </select>
+          
+          <!-- 選取「其他」時展開的輸入框 -->
+          <div class="custom-category-group" id="custom-cat-box">
+            <input type="text" id="custom_category" placeholder="請填寫您自訂的幸福類型（例如：手作烘焙、山林獨處）/ Custom category name">
+          </div>
         </div>
 
         <div class="form-group">
@@ -335,7 +341,6 @@
       </form>
     </section>
 
-    <!-- 工具列 -->
     <div class="toolbar">
       <div class="divider-text">MOMENTS OF LIGHT • 幸福流動</div>
       <button class="btn-random" onclick="pickRandomMoment()">🎲 遇見一份微光 / Random</button>
@@ -356,7 +361,6 @@
     </footer>
   </div>
 
-  <!-- 心靈回饋 Toast 視窗 -->
   <div class="toast-overlay" id="toast-modal">
     <div class="toast-card">
       <div style="font-size: 2rem;">🕊️</div>
@@ -383,15 +387,33 @@
       "「大道至簡，幸福一直在當下的呼吸裡。」"
     ];
 
+    function handleCategoryChange(select) {
+      const customBox = document.getElementById('custom-cat-box');
+      const customInput = document.getElementById('custom_category');
+      if (select.value === 'custom') {
+        customBox.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+      } else {
+        customBox.style.display = 'none';
+        customInput.required = false;
+      }
+    }
+
     document.getElementById('happiness-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
       const nickname = document.getElementById('nickname').value.trim();
-      const category = document.getElementById('category').value;
+      const categorySelect = document.getElementById('category').value;
+      const customCategory = document.getElementById('custom_category').value.trim();
       const content = document.getElementById('content').value.trim();
-      const honeypot = document.getElementById('hp_url').value; // 蜜罐欄位
+      const honeypot = document.getElementById('hp_url').value;
 
-      // 30 秒冷卻防連點機制
+      // 決定最終提交的類別名稱
+      const finalCategory = (categorySelect === 'custom') 
+        ? (customCategory ? `✨ ${customCategory}` : '✨ 幸福小事 / Other') 
+        : categorySelect;
+
       const lastSubmitTime = localStorage.getItem('last_happiness_submit');
       const now = Date.now();
       if (lastSubmitTime && now - parseInt(lastSubmitTime) < 30000) {
@@ -409,11 +431,12 @@
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ nickname, category, content, honeypot })
+          body: JSON.stringify({ nickname, category: finalCategory, content, honeypot })
         });
 
         localStorage.setItem('last_happiness_submit', now.toString());
         document.getElementById('happiness-form').reset();
+        document.getElementById('custom-cat-box').style.display = 'none';
         showToast();
         setTimeout(loadLedger, 5000);
       } catch (err) {
