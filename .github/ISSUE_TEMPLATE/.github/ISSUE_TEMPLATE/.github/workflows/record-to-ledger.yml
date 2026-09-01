@@ -1,0 +1,102 @@
+name: Process Happiness Record
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  archive-record:
+    if: contains(github.event.issue.labels.*.name, 'happiness-record')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Parse Issue and Update Ledger
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const body = context.payload.issue.body;
+            const issueNumber = context.payload.issue.number;
+            const dateStr = new Date().toISOString();
+
+            // 解析 Issue 表單欄位
+            const extractSection = (heading) => {
+              const regex = new RegExp(`### ${heading}\\s+([\\s\\S]*?)(?=###|$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : '';
+            };
+
+            const nickname = extractSection('您的稱呼 / 筆名') || '匿名旅人';
+            const category = extractSection('幸福微類型') || '身心安頓';
+            const content = extractSection('幸福感知內容') || '';
+
+            // 1. 建立個別 Markdown 檔案
+            const recordDir = path.join(process.env.GITHUB_WORKSPACE, 'data/records');
+            if (!fs.existsSync(recordDir)) fs.mkdirSync(recordDir, { recursive: true });
+
+            const fileName = `${dateStr.split('T')[0]}-record-${issueNumber}.md`;
+            const mdContent = `---
+            id: ${issueNumber}
+            date: ${dateStr}
+            author: "${nickname}"
+            category: "${category}"
+            ---
+
+            ${content}
+            `.replace(/^[ \t]+/gm, '');
+
+            fs.writeFileSync(path.join(recordDir, fileName), mdContent);
+
+            // 2. 更新聚合 JSON (供前端高速載入)
+            const jsonPath = path.join(process.env.GITHUB_WORKSPACE, 'data/ledger.json');
+            let ledger = [];
+            if (fs.existsSync(jsonPath)) {
+              try {
+                ledger = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+              } catch (e) {
+                ledger = [];
+              }
+            }
+
+            ledger.unshift({
+              id: issueNumber,
+              date: dateStr,
+              author: nickname,
+              category: category,
+              content: content
+            });
+
+            fs.writeFileSync(jsonPath, JSON.stringify(ledger, null, 2));
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "Happiness Bot"
+          git config --global user.email "bot@daoissimple.local"
+          git add data/
+          git commit -m "feat(ledger): 存入幸福紀錄 #${{ github.event.issue.number }}"
+          git push
+
+      - name: Close Issue with Blessings
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '✨ 您的幸福紀錄已永久記入開源帳本，並同步至幸福共創牆。感謝您的微小善意！'
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });
