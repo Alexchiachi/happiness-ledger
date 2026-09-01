@@ -2,7 +2,9 @@ name: Process Happiness Record
 
 on:
   issues:
-    types: [opened, reopened, labeled]
+    # 只監聽 opened。GitHub 對「建立時即帶標籤」的 Issue 會同時送出 opened 與
+    # labeled 兩個事件，兩者都收會讓同一筆存入觸發兩個 job 互相搶著 push。
+    types: [opened]
   workflow_dispatch: # 支援手動一鍵點擊執行
 
 permissions:
@@ -11,6 +13,9 @@ permissions:
   pages: write
   id-token: write
 
+# 刻意不使用 concurrency 群組：GitHub 在同一群組中只保留最新一個排隊的 run，
+# 更早排隊的會被取消，等於在高併發時直接丟棄紀錄。改以下方的重試迴圈處理競爭。
+
 jobs:
   archive-record:
     runs-on: ubuntu-latest
@@ -18,74 +23,43 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Parse Issue and Update Ledger
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            // 取得 Issue 內容
-            const issue = context.payload.issue;
-            if (!issue) return;
-
-            const body = issue.body || '';
-            const issueNumber = issue.number;
-            const dateStr = new Date().toISOString();
-
-            // 解析各欄位
-            const extractSection = (heading) => {
-              const regex = new RegExp(`### ${heading}[\\s\\S]*?\\n([\\s\\S]*?)(?=###|$)`);
-              const match = body.match(regex);
-              return match ? match[1].trim() : '';
-            };
-
-            const nickname = extractSection('您的稱呼 / 筆名') || extractSection('您的稱呼') || issue.user?.login || '匿名旅人';
-            const category = extractSection('幸福微類型') || '✨ 幸福微光';
-            const content = extractSection('幸福感知內容') || body || '無感知內容';
-
-            // 確保 data 資料夾存在
-            const dataDir = path.join(process.env.GITHUB_WORKSPACE, 'data');
-            const recordDir = path.join(dataDir, 'records');
-            if (!fs.existsSync(recordDir)) fs.mkdirSync(recordDir, { recursive: true });
-
-            // 寫入個別 Markdown
-            const fileName = `${dateStr.split('T')[0]}-record-${issueNumber}.md`;
-            const mdContent = `---\nid: ${issueNumber}\ndate: ${dateStr}\nauthor: "${nickname}"\ncategory: "${category}"\n---\n\n${content}\n`;
-            fs.writeFileSync(path.join(recordDir, fileName), mdContent, 'utf8');
-
-            // 讀取並更新 ledger.json
-            const jsonPath = path.join(dataDir, 'ledger.json');
-            let ledger = [];
-            if (fs.existsSync(jsonPath)) {
-              try {
-                ledger = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-              } catch (e) {
-                ledger = [];
-              }
-            }
-
-            // 避免重複寫入同一個 Issue ID
-            ledger = ledger.filter(item => item.id !== issueNumber);
-            ledger.unshift({
-              id: issueNumber,
-              date: dateStr,
-              author: nickname,
-              category: category,
-              content: content
-            });
-
-            fs.writeFileSync(jsonPath, JSON.stringify(ledger, null, 2), 'utf8');
-
-      - name: Commit and Push Changes
+      - name: Write Record and Push (with retry)
         run: |
+          set -euo pipefail
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
-          git diff --staged --quiet || git commit -m "feat(ledger): 自動存入幸福紀錄 #${{ github.event.issue.number }}"
-          git push origin main
+
+          for attempt in 1 2 3 4 5 6 7 8; do
+            echo "── 第 ${attempt} 次嘗試 ──"
+
+            # 每次都重置到最新的遠端狀態後重算，避免以過時的 ledger.json 為基礎。
+            # 不用 rebase：兩個並行的 run 都會整份重寫 ledger.json，必然衝突。
+            git fetch --depth=1 origin main
+            git reset --hard FETCH_HEAD
+
+            node .github/scripts/update-ledger.js
+
+            git add data/
+            if git diff --staged --quiet; then
+              echo "沒有變更（此紀錄已存在），視為成功。"
+              exit 0
+            fi
+
+            git commit -m "feat(ledger): 自動存入幸福紀錄 #${{ github.event.issue.number }}"
+
+            if git push origin HEAD:main; then
+              echo "已成功推送。"
+              exit 0
+            fi
+
+            echo "推送被拒（其他紀錄先寫入），稍後重試。"
+            sleep $(( (RANDOM % 5) + attempt * 3 ))
+          done
+
+          echo "::error::連續 8 次推送皆失敗，紀錄未寫入帳本。"
+          exit 1
 
       - name: Close Issue with Blessings
         if: github.event.issue.state == 'open'
