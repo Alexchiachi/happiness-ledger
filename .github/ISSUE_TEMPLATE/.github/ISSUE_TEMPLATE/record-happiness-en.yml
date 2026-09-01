@@ -1,0 +1,34 @@
+name: 🌸 Deposit a Moment of Happiness
+description: Record a subtle moment of gratitude, mindfulness, or kindness
+title: "[Happiness Record]: "
+labels: ["happiness-record"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dao is simple. Life unfolds in tiny, authentic perceptions. Leave your record of kindness or gratitude here.
+  - type: input
+    id: nickname
+    attributes:
+      label: Your Name / Moniker
+      placeholder: e.g., Kyoto Wanderer, Middle-Aged Walker, Anonymous
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Micro-Category
+      options:
+        - ☕ Sensory Awareness (Taste, Aroma, Light)
+        - 🤝 Subtle Kindness (Giving, Listening, Smiling)
+        - 🍃 Connection with Nature (Soil, Plants, Twilight)
+        - 🧘 Inner Peace (Reading, Meditation, Pausing)
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: Your Moment of Awareness
+      placeholder: Describe the scene, aroma, feeling, or gentle interaction...
+    validations:
+      required: true
