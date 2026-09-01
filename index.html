@@ -23,11 +23,7 @@
       --shadow-hover: 0 8px 30px rgba(140, 109, 83, 0.1);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
@@ -36,18 +32,10 @@
       min-height: 100vh;
       padding: 3.5rem 1.25rem;
       line-height: 1.7;
-      letter-spacing: 0.01em;
     }
 
-    .container {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 3.5rem;
-    }
+    .container { max-width: 680px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 2.5rem; }
 
     .brand-mark {
       font-size: 1.5rem;
@@ -55,7 +43,6 @@
       display: inline-block;
       animation: gentle-breathe 4s ease-in-out infinite;
     }
-
     @keyframes gentle-breathe {
       0%, 100% { transform: scale(1); opacity: 0.8; }
       50% { transform: scale(1.06); opacity: 1; }
@@ -67,7 +54,6 @@
       font-weight: 600;
       color: var(--accent);
       letter-spacing: 0.04em;
-      margin-bottom: 0.25rem;
     }
 
     .sub-en-title {
@@ -75,174 +61,127 @@
       text-transform: uppercase;
       letter-spacing: 0.2em;
       color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
 
     .quote-box {
-      font-size: 0.98rem;
+      font-size: 0.95rem;
       color: var(--text-sub);
-      line-height: 1.6;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
-    .quote-en {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: 0.35rem;
-      font-style: italic;
-    }
-
-    .btn-group {
-      display: flex;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .btn-deposit {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.6rem;
-      background-color: var(--accent);
-      color: #ffffff;
-      text-decoration: none;
-      border-radius: 999px;
-      font-size: 0.92rem;
-      font-weight: 500;
-      box-shadow: 0 4px 14px rgba(140, 109, 83, 0.25);
-      transition: all 0.25s ease;
-    }
-
-    .btn-deposit:hover {
-      background-color: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(140, 109, 83, 0.35);
-    }
-
-    .btn-deposit.secondary {
-      background-color: #ffffff;
-      color: var(--accent);
+    /* 原生免登入表單容器 */
+    .form-container {
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
       box-shadow: var(--shadow-sm);
     }
 
-    .btn-deposit.secondary:hover {
-      background-color: var(--accent-light);
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.4rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: #ffffff;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
       border-color: var(--accent);
     }
 
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      background-color: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(140, 109, 83, 0.25);
+    }
+
+    .btn-submit:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-submit:disabled {
+      background-color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* 分隔線 */
     .divider {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 3rem 0 2.5rem;
+      margin: 2.5rem 0 2rem;
       color: var(--text-muted);
       font-size: 0.75rem;
       letter-spacing: 0.2em;
-      text-transform: uppercase;
     }
-
     .divider::before, .divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--card-border);
-      margin: 0 1rem;
+      content: ""; flex: 1; height: 1px; background: var(--card-border); margin: 0 1rem;
     }
 
-    .ledger-stream {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
+    /* 幸福卡片列表 */
+    .ledger-stream { display: flex; flex-direction: column; gap: 1.5rem; }
     .card {
       background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 1.5rem 1.75rem;
       box-shadow: var(--shadow-sm);
-      transition: all 0.3s ease;
     }
-
-    .card:hover {
-      box-shadow: var(--shadow-hover);
-      transform: translateY(-2px);
-      border-color: rgba(140, 109, 83, 0.3);
-    }
-
     .card-meta-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.6rem;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.85rem; margin-bottom: 1rem; padding-bottom: 0.6rem;
       border-bottom: 1px dashed rgba(226, 218, 206, 0.8);
     }
-
-    .card-author {
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
+    .card-author { font-weight: 600; }
     .card-category {
-      background: var(--accent-light);
-      color: var(--accent);
-      padding: 0.2rem 0.65rem;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 500;
+      background: var(--accent-light); color: var(--accent);
+      padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.78rem;
     }
-
     .card-content {
-      font-size: 1rem;
-      color: var(--text-main);
-      white-space: pre-wrap;
-      line-height: 1.8;
+      font-size: 1rem; white-space: pre-wrap; line-height: 1.8;
       font-family: 'Noto Serif TC', serif;
     }
-
     .card-meta-bottom {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-top: 1.2rem;
+      display: flex; justify-content: space-between;
+      font-size: 0.78rem; color: var(--text-muted); margin-top: 1.2rem;
     }
 
     .state-box {
-      text-align: center;
-      padding: 3.5rem 1.5rem;
-      background: var(--card-bg);
-      border-radius: 16px;
-      border: 1px dashed var(--card-border);
-      color: var(--text-sub);
+      text-align: center; padding: 3rem 1.5rem;
+      background: var(--card-bg); border-radius: 16px;
+      border: 1px dashed var(--card-border); color: var(--text-sub);
     }
 
-    .state-icon {
-      font-size: 2rem;
-      margin-bottom: 0.8rem;
-      display: inline-block;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 4rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-    }
-
-    footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
+    footer { text-align: center; margin-top: 4rem; font-size: 0.8rem; color: var(--text-muted); }
+    footer a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
@@ -252,49 +191,94 @@
       <div class="brand-mark">🌸</div>
       <h1>幸福影響力記帳本</h1>
       <div class="sub-en-title">The Happiness Ledger</div>
-      
       <div class="quote-box">
-        每一份對生活的微小覺察與善意，都值得被恆久銘記。
-        <span class="quote-en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
-      </div>
-
-      <div class="btn-group">
-        <a href="https://github.com/Alexchiachi/happiness-ledger/issues/new?template=record-happiness-zh.yml&labels=happiness-record" 
-           target="_blank" 
-           class="btn-deposit">
-          <span>+ 存入一筆幸福</span>
-        </a>
-        <a href="https://github.com/Alexchiachi/happiness-ledger/issues/new?template=record-happiness-en.yml&labels=happiness-record" 
-           target="_blank" 
-           class="btn-deposit secondary">
-          <span>+ Deposit a Moment (EN)</span>
-        </a>
+        每一份對生活的微小覺察與善意，都值得被恆久銘記。<br>
+        <span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">免登入 · 隨時存入當下的感知與微光</span>
       </div>
     </header>
+
+    <!-- 免登入原生表單 -->
+    <section class="form-container">
+      <form id="happiness-form">
+        <div class="form-group">
+          <label for="nickname">您的稱呼 / Your Moniker</label>
+          <input type="text" id="nickname" required placeholder="例如：南投旅人、中年大叔、漫步者">
+        </div>
+        <div class="form-group">
+          <label for="category">幸福微類型 / Category</label>
+          <select id="category" required>
+            <option value="☕ 五感覺察（飲食、氣味、光影）">☕ 五感覺察（飲食、氣味、光影）</option>
+            <option value="🤝 微小善意（給予、傾聽、微笑）">🤝 微小善意（給予、傾聽、微笑）</option>
+            <option value="🍃 自然連結（草木、泥土、晨昏）">🍃 自然連結（草木、泥土、晨昏）</option>
+            <option value="🧘 身心安頓（閱讀、冥想、停頓）">🧘 身心安頓（閱讀、冥想、停頓）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="content">幸福感知內容 / Your Moment</label>
+          <textarea id="content" rows="3" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意..."></textarea>
+        </div>
+        <button type="submit" id="submit-btn" class="btn-submit">✨ 存入這份幸福 (Deposit)</button>
+      </form>
+    </section>
 
     <div class="divider">MOMENTS OF LIGHT • 幸福流動</div>
 
     <main class="ledger-stream" id="ledger">
       <div class="state-box">
-        <span class="state-icon">🕊️</span>
-        <p>正在載入微光紀錄 / Loading records...</p>
+        <p>正在載入微光紀錄...</p>
       </div>
     </main>
 
     <footer>
       <p>大道至簡 · 一人公司開源數位行為藝術</p>
-      <p style="margin-top:0.25rem;">Powered by GitHub Pages & Actions | <a href="https://github.com/Alexchiachi/happiness-ledger" target="_blank">View on GitHub</a></p>
+      <p style="margin-top:0.25rem;">Powered by GitHub & Google Apps Script | <a href="https://github.com/Alexchiachi/happiness-ledger" target="_blank">View on GitHub</a></p>
     </footer>
   </div>
 
   <script>
+    // 已綁定您的專屬 Google Apps Script Web App 端點
+    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzl-bRgCui8qXSah34KEEU7ZNWqcowHuOKtjXJ21UNe6TQZ3JOJy1BAindkrQd1Jc0u/exec';
+
+    // 處理表單免登入送出
+    document.getElementById('happiness-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const nickname = document.getElementById('nickname').value.trim();
+      const category = document.getElementById('category').value;
+      const content = document.getElementById('content').value.trim();
+
+      if (!nickname || !content) return;
+
+      btn.disabled = true;
+      btn.innerText = '🕊️ 正在存入帳本中...';
+
+      try {
+        // 使用 text/plain 避免瀏覽器 preflight CORS 阻擋
+        await fetch(GAS_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ nickname, category, content })
+        });
+
+        alert('✨ 感謝您的微光！紀錄已送往開源帳本，系統正在自動蓋上時間戳記。');
+        document.getElementById('happiness-form').reset();
+        
+        // 延遲 5 秒後刷新列表以等待 GitHub Actions 構建完畢
+        setTimeout(loadLedger, 5000);
+      } catch (err) {
+        alert('存入時出現了一點小狀況，請稍後重試。');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '✨ 存入這份幸福 (Deposit)';
+      }
+    });
+
     async function loadLedger() {
       const container = document.getElementById('ledger');
       try {
         const res = await fetch('./data/ledger.json?t=' + Date.now());
-        if (!res.ok) {
-          throw new Error('Ledger not initialized yet');
-        }
+        if (!res.ok) throw new Error();
         const data = await res.json();
         
         if (!data || !data.length) {
@@ -323,11 +307,9 @@
     function renderEmptyState(container) {
       container.innerHTML = `
         <div class="state-box">
-          <span class="state-icon">🍃</span>
           <p style="font-weight: 500; margin-bottom: 0.4rem; color: var(--text-main);">靜候第一份微光存入</p>
           <p style="font-size: 0.85rem; color: var(--text-muted);">
-            帳本已準備就緒。點擊上方按鈕，留下第一筆溫暖的生命覺察。<br>
-            <em>The ledger is ready. Click above to deposit the very first moment.</em>
+            帳本已準備就緒。填寫上方表單，留下第一筆溫暖的生命覺察。
           </p>
         </div>
       `;
