@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>幸福影響力記帳本 | Happiness Ledger</title>
+  <title>幸福影響力記帳本 | The Happiness Ledger</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -11,8 +11,8 @@
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at 50% 0%, #fdfbf7 0%, #f7f3ed 100%);
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --card-border: rgba(226, 218, 206, 0.6);
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(226, 218, 206, 0.7);
       --text-main: #332d29;
       --text-sub: #7a7067;
       --text-muted: #a3998e;
@@ -30,7 +30,7 @@
       background: var(--bg-gradient);
       color: var(--text-main);
       min-height: 100vh;
-      padding: 3.5rem 1.25rem;
+      padding: 3rem 1.25rem;
       line-height: 1.7;
     }
 
@@ -50,7 +50,7 @@
 
     h1 {
       font-family: 'Noto Serif TC', serif;
-      font-size: 2.1rem;
+      font-size: 2rem;
       font-weight: 600;
       color: var(--accent);
       letter-spacing: 0.04em;
@@ -67,7 +67,15 @@
     .quote-box {
       font-size: 0.95rem;
       color: var(--text-sub);
-      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .quote-en {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      font-style: italic;
     }
 
     /* 原生免登入表單容器 */
@@ -76,6 +84,7 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 1.5rem;
+      margin-top: 1.5rem;
       margin-bottom: 2.5rem;
       box-shadow: var(--shadow-sm);
     }
@@ -86,10 +95,17 @@
 
     label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 600;
       color: var(--text-main);
       margin-bottom: 0.4rem;
+    }
+
+    .label-en {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 0.3rem;
     }
 
     input, select, textarea {
@@ -100,7 +116,7 @@
       background: #ffffff;
       color: var(--text-main);
       font-family: inherit;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       outline: none;
       transition: border-color 0.2s;
     }
@@ -116,7 +132,7 @@
       color: #ffffff;
       border: none;
       border-radius: 999px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
@@ -179,6 +195,7 @@
       background: var(--card-bg); border-radius: 16px;
       border: 1px dashed var(--card-border); color: var(--text-sub);
     }
+    .state-icon { font-size: 2rem; margin-bottom: 0.8rem; display: inline-block; }
 
     footer { text-align: center; margin-top: 4rem; font-size: 0.8rem; color: var(--text-muted); }
     footer a { color: var(--accent); text-decoration: none; }
@@ -192,32 +209,35 @@
       <h1>幸福影響力記帳本</h1>
       <div class="sub-en-title">The Happiness Ledger</div>
       <div class="quote-box">
-        每一份對生活的微小覺察與善意，都值得被恆久銘記。<br>
-        <span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">免登入 · 隨時存入當下的感知與微光</span>
+        每一份對生活的微小覺察與善意，都值得被恆久銘記。
+        <span class="quote-en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
       </div>
     </header>
 
-    <!-- 免登入原生表單 -->
+    <!-- 免登入原生全雙語表單 -->
     <section class="form-container">
       <form id="happiness-form">
         <div class="form-group">
-          <label for="nickname">您的稱呼 / Your Moniker</label>
-          <input type="text" id="nickname" required placeholder="例如：南投旅人、中年大叔、漫步者">
+          <label for="nickname">您的稱呼 <span class="label-en">/ Your Moniker</span></label>
+          <input type="text" id="nickname" required placeholder="例如：南投旅人、中年大叔、漫步者 / e.g. Kyoto Wanderer, Anonymous">
         </div>
+        
         <div class="form-group">
-          <label for="category">幸福微類型 / Category</label>
+          <label for="category">幸福微類型 <span class="label-en">/ Category</span></label>
           <select id="category" required>
-            <option value="☕ 五感覺察（飲食、氣味、光影）">☕ 五感覺察（飲食、氣味、光影）</option>
-            <option value="🤝 微小善意（給予、傾聽、微笑）">🤝 微小善意（給予、傾聽、微笑）</option>
-            <option value="🍃 自然連結（草木、泥土、晨昏）">🍃 自然連結（草木、泥土、晨昏）</option>
-            <option value="🧘 身心安頓（閱讀、冥想、停頓）">🧘 身心安頓（閱讀、冥想、停頓）</option>
+            <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察 / Sensory Awareness (飲食、氣味、光影)</option>
+            <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意 / Subtle Kindness (給予、傾聽、微笑)</option>
+            <option value="🍃 自然連結 / Connection with Nature">🍃 自然連結 / Connection with Nature (草木、泥土、晨昏)</option>
+            <option value="🧘 身心安頓 / Inner Peace">🧘 身心安頓 / Inner Peace (閱讀、冥想、停頓)</option>
           </select>
         </div>
+
         <div class="form-group">
-          <label for="content">幸福感知內容 / Your Moment</label>
-          <textarea id="content" rows="3" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意..."></textarea>
+          <label for="content">幸福感知內容 <span class="label-en">/ Your Moment of Awareness</span></label>
+          <textarea id="content" rows="3" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意...&#10;Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..."></textarea>
         </div>
-        <button type="submit" id="submit-btn" class="btn-submit">✨ 存入這份幸福 (Deposit)</button>
+
+        <button type="submit" id="submit-btn" class="btn-submit">✨ 存入這份幸福 / Deposit This Moment</button>
       </form>
     </section>
 
@@ -225,21 +245,20 @@
 
     <main class="ledger-stream" id="ledger">
       <div class="state-box">
-        <p>正在載入微光紀錄...</p>
+        <span class="state-icon">🕊️</span>
+        <p>正在載入微光紀錄 / Loading records...</p>
       </div>
     </main>
 
     <footer>
-      <p>大道至簡 · 一人公司開源數位行為藝術</p>
+      <p>大道至簡 · 一人公司開源數位行為藝術 / Dao Is Simple: Open-Source Behavioral Art</p>
       <p style="margin-top:0.25rem;">Powered by GitHub & Google Apps Script | <a href="https://github.com/Alexchiachi/happiness-ledger" target="_blank">View on GitHub</a></p>
     </footer>
   </div>
 
   <script>
-    // 已綁定您的專屬 Google Apps Script Web App 端點
     const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzl-bRgCui8qXSah34KEEU7ZNWqcowHuOKtjXJ21UNe6TQZ3JOJy1BAindkrQd1Jc0u/exec';
 
-    // 處理表單免登入送出
     document.getElementById('happiness-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
@@ -250,10 +269,9 @@
       if (!nickname || !content) return;
 
       btn.disabled = true;
-      btn.innerText = '🕊️ 正在存入帳本中...';
+      btn.innerText = '🕊️ 正在存入帳本中... / Depositing...';
 
       try {
-        // 使用 text/plain 避免瀏覽器 preflight CORS 阻擋
         await fetch(GAS_ENDPOINT, {
           method: 'POST',
           mode: 'no-cors',
@@ -261,16 +279,14 @@
           body: JSON.stringify({ nickname, category, content })
         });
 
-        alert('✨ 感謝您的微光！紀錄已送往開源帳本，系統正在自動蓋上時間戳記。');
+        alert('✨ 感謝您的微光！紀錄已送往開源帳本，系統正在自動蓋上時間戳記。\nThank you! Your moment has been recorded into the ledger.');
         document.getElementById('happiness-form').reset();
-        
-        // 延遲 5 秒後刷新列表以等待 GitHub Actions 構建完畢
         setTimeout(loadLedger, 5000);
       } catch (err) {
-        alert('存入時出現了一點小狀況，請稍後重試。');
+        alert('存入時出現了一點小狀況，請稍後重試。\nSomething went wrong. Please try again later.');
       } finally {
         btn.disabled = false;
-        btn.innerText = '✨ 存入這份幸福 (Deposit)';
+        btn.innerText = '✨ 存入這份幸福 / Deposit This Moment';
       }
     });
 
@@ -307,9 +323,11 @@
     function renderEmptyState(container) {
       container.innerHTML = `
         <div class="state-box">
-          <p style="font-weight: 500; margin-bottom: 0.4rem; color: var(--text-main);">靜候第一份微光存入</p>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">
-            帳本已準備就緒。填寫上方表單，留下第一筆溫暖的生命覺察。
+          <span class="state-icon">🍃</span>
+          <p style="font-weight: 500; margin-bottom: 0.4rem; color: var(--text-main);">靜候第一份微光存入 / Waiting for the First Moment</p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+            帳本已準備就緒。填寫上方表單，留下第一筆溫暖的生命覺察。<br>
+            <em>The ledger is ready. Fill out the form above to deposit the first spark of mindfulness.</em>
           </p>
         </div>
       `;
