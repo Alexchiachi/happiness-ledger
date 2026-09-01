@@ -211,6 +211,7 @@
       <div class="quote-box">
         每一份對生活的微小覺察與善意，都值得被恆久銘記。
         <span class="quote-en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
+        <span class="quote-en" style="margin-top:0.25rem;">免登入 · 隨時存入當下的感知與微光 / No login required · Deposit your moment anytime</span>
       </div>
     </header>
 
@@ -219,21 +220,21 @@
       <form id="happiness-form">
         <div class="form-group">
           <label for="nickname">您的稱呼 <span class="label-en">/ Your Moniker</span></label>
-          <input type="text" id="nickname" required placeholder="例如：南投旅人、中年大叔、漫步者 / e.g. Kyoto Wanderer, Anonymous">
+          <input type="text" id="nickname" required placeholder="例如：南投旅人、中年大叔、漫步者 / e.g. Kyoto Wanderer, Middle-Aged Walker, Anonymous">
         </div>
         
         <div class="form-group">
-          <label for="category">幸福微類型 <span class="label-en">/ Category</span></label>
+          <label for="category">幸福微類型 <span class="label-en">/ Micro-Category</span></label>
           <select id="category" required>
-            <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察 / Sensory Awareness (飲食、氣味、光影)</option>
-            <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意 / Subtle Kindness (給予、傾聽、微笑)</option>
-            <option value="🍃 自然連結 / Connection with Nature">🍃 自然連結 / Connection with Nature (草木、泥土、晨昏)</option>
-            <option value="🧘 身心安頓 / Inner Peace">🧘 身心安頓 / Inner Peace (閱讀、冥想、停頓)</option>
+            <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察（飲食、氣味、光影） / Sensory Awareness (Taste, Aroma, Light)</option>
+            <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意（給予、傾聽、微笑） / Subtle Kindness (Giving, Listening, Smiling)</option>
+            <option value="🍃 自然連結 / Nature Connection">🍃 自然連結（草木、泥土、晨昏） / Nature Connection (Plants, Soil, Twilight)</option>
+            <option value="🧘 身心安頓 / Inner Peace">🧘 身心安頓（閱讀、冥想、停頓） / Inner Peace (Reading, Meditation, Pausing)</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="content">幸福感知內容 <span class="label-en">/ Your Moment of Awareness</span></label>
+          <label for="content">幸福感知內容 <span class="label-en">/ Moment of Awareness</span></label>
           <textarea id="content" rows="3" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意...&#10;Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..."></textarea>
         </div>
 
@@ -246,13 +247,15 @@
     <main class="ledger-stream" id="ledger">
       <div class="state-box">
         <span class="state-icon">🕊️</span>
-        <p>正在載入微光紀錄 / Loading records...</p>
+        <p style="font-weight: 500; color: var(--text-main);">正在載入微光紀錄...</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Loading records...</p>
       </div>
     </main>
 
     <footer>
-      <p>大道至簡 · 一人公司開源數位行為藝術 / Dao Is Simple: Open-Source Behavioral Art</p>
-      <p style="margin-top:0.25rem;">Powered by GitHub & Google Apps Script | <a href="https://github.com/Alexchiachi/happiness-ledger" target="_blank">View on GitHub</a></p>
+      <p>大道至簡 · 一人公司開源數位行為藝術</p>
+      <p style="font-size: 0.75rem; color: var(--text-muted);">Dao Is Simple: Open-Source Behavioral Art for Solopreneurs</p>
+      <p style="margin-top:0.4rem;">Powered by GitHub & Google Apps Script | <a href="https://github.com/Alexchiachi/happiness-ledger" target="_blank">View on GitHub</a></p>
     </footer>
   </div>
 
@@ -279,11 +282,11 @@
           body: JSON.stringify({ nickname, category, content })
         });
 
-        alert('✨ 感謝您的微光！紀錄已送往開源帳本，系統正在自動蓋上時間戳記。\nThank you! Your moment has been recorded into the ledger.');
+        alert('✨ 感謝您的微光！紀錄已送往開源帳本，系統正在自動蓋上時間戳記。\n\nThank you! Your moment has been recorded into the ledger and is being timestamped.');
         document.getElementById('happiness-form').reset();
         setTimeout(loadLedger, 5000);
       } catch (err) {
-        alert('存入時出現了一點小狀況，請稍後重試。\nSomething went wrong. Please try again later.');
+        alert('存入時出現了一點小狀況，請稍後重試。\n\nSomething went wrong. Please try again later.');
       } finally {
         btn.disabled = false;
         btn.innerText = '✨ 存入這份幸福 / Deposit This Moment';
@@ -324,7 +327,9 @@
       container.innerHTML = `
         <div class="state-box">
           <span class="state-icon">🍃</span>
-          <p style="font-weight: 500; margin-bottom: 0.4rem; color: var(--text-main);">靜候第一份微光存入 / Waiting for the First Moment</p>
+          <p style="font-weight: 500; margin-bottom: 0.4rem; color: var(--text-main);">
+            靜候第一份微光存入 <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/ Waiting for the First Moment</span>
+          </p>
           <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
             帳本已準備就緒。填寫上方表單，留下第一筆溫暖的生命覺察。<br>
             <em>The ledger is ready. Fill out the form above to deposit the first spark of mindfulness.</em>
