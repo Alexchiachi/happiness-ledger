@@ -42,9 +42,9 @@ jobs:
               return match ? match[1].trim() : '';
             };
 
-            const nickname = extractSection('您的稱呼 / 筆名') || extractSection('您的稱呼') || issue.user?.login || '匿名旅人';
-            const category = extractSection('幸福微類型') || '✨ 幸福微光';
-            const content = extractSection('幸福感知內容') || body || '無感知內容';
+            const nickname = extractSection('您的稱呼 / 筆名') || extractSection('您的稱呼') || extractSection('Your Name / Moniker') || issue.user?.login || '匿名旅人';
+            const category = extractSection('幸福微類型') || extractSection('Micro-Category') || '✨ 幸福微光';
+            const content = extractSection('幸福感知內容') || extractSection('Your Moment of Awareness') || body || '無感知內容';
 
             // 確保 data 資料夾存在
             const dataDir = path.join(process.env.GITHUB_WORKSPACE, 'data');
