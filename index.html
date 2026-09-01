@@ -93,6 +93,12 @@
       margin-bottom: 1.2rem;
     }
 
+    /* 隱形蜜罐 (防機器人爬蟲) */
+    .hp-field {
+      display: none !important;
+      visibility: hidden !important;
+    }
+
     label {
       display: block;
       font-size: 0.88rem;
@@ -148,18 +154,37 @@
       cursor: not-allowed;
     }
 
-    /* 分隔線 */
-    .divider {
+    /* 工具列（分隔線與隨機靈感按鈕） */
+    .toolbar {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       margin: 2.5rem 0 2rem;
+      gap: 1rem;
+    }
+
+    .divider-text {
       color: var(--text-muted);
       font-size: 0.75rem;
       letter-spacing: 0.2em;
     }
-    .divider::before, .divider::after {
-      content: ""; flex: 1; height: 1px; background: var(--card-border); margin: 0 1rem;
+
+    .btn-random {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+    }
+
+    .btn-random:hover {
+      background: var(--accent-light);
     }
 
     /* 幸福卡片列表 */
@@ -170,6 +195,11 @@
       border-radius: 16px;
       padding: 1.5rem 1.75rem;
       box-shadow: var(--shadow-sm);
+      transition: all 0.3s;
+    }
+    .card.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(140, 109, 83, 0.2);
     }
     .card-meta-top {
       display: flex; justify-content: space-between; align-items: center;
@@ -197,6 +227,66 @@
     }
     .state-icon { font-size: 2rem; margin-bottom: 0.8rem; display: inline-block; }
 
+    /* 心靈 Toast 回饋視窗 */
+    .toast-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(51, 45, 41, 0.35);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .toast-card {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2.2rem 1.8rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      transform: translateY(10px);
+      transition: transform 0.3s ease;
+    }
+
+    .toast-overlay.active .toast-card {
+      transform: translateY(0);
+    }
+
+    .toast-poem {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.05rem;
+      color: var(--accent);
+      line-height: 1.8;
+      margin: 1rem 0;
+      padding: 1rem;
+      background: var(--accent-light);
+      border-radius: 12px;
+    }
+
+    .btn-toast-close {
+      margin-top: 1rem;
+      padding: 0.6rem 1.8rem;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
     footer { text-align: center; margin-top: 4rem; font-size: 0.8rem; color: var(--text-muted); }
     footer a { color: var(--accent); text-decoration: none; }
   </style>
@@ -218,6 +308,9 @@
     <!-- 免登入原生全雙語表單 -->
     <section class="form-container">
       <form id="happiness-form">
+        <!-- 隱形蜜罐 (防止爬蟲機器人) -->
+        <input type="text" id="hp_url" name="hp_url" class="hp-field" tabindex="-1" autocomplete="off">
+
         <div class="form-group">
           <label for="nickname">您的稱呼 <span class="label-en">/ Your Moniker</span></label>
           <input type="text" id="nickname" required placeholder="例如：南投旅人、中年大叔、漫步者 / e.g. Kyoto Wanderer, Middle-Aged Walker, Anonymous">
@@ -242,7 +335,11 @@
       </form>
     </section>
 
-    <div class="divider">MOMENTS OF LIGHT • 幸福流動</div>
+    <!-- 工具列 -->
+    <div class="toolbar">
+      <div class="divider-text">MOMENTS OF LIGHT • 幸福流動</div>
+      <button class="btn-random" onclick="pickRandomMoment()">🎲 遇見一份微光 / Random</button>
+    </div>
 
     <main class="ledger-stream" id="ledger">
       <div class="state-box">
@@ -259,8 +356,32 @@
     </footer>
   </div>
 
+  <!-- 心靈回饋 Toast 視窗 -->
+  <div class="toast-overlay" id="toast-modal">
+    <div class="toast-card">
+      <div style="font-size: 2rem;">🕊️</div>
+      <h3 style="font-family:'Noto Serif TC',serif; color:var(--text-main); margin-top:0.4rem;">微光已存入帳本</h3>
+      <p style="font-size:0.8rem; color:var(--text-muted);">Your moment is now permanently recorded.</p>
+      
+      <div class="toast-poem" id="toast-blessing">
+        「慢下來，感知每一縷微風，生活原本就很美。」
+      </div>
+
+      <button class="btn-toast-close" onclick="closeToast()">安住此心 / Peace</button>
+    </div>
+  </div>
+
   <script>
     const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzl-bRgCui8qXSah34KEEU7ZNWqcowHuOKtjXJ21UNe6TQZ3JOJy1BAindkrQd1Jc0u/exec';
+    let globalLedgerData = [];
+
+    const BLESSINGS = [
+      "「慢下來，感知每一縷微風，生活原本就很美。」",
+      "「微小的善意如水滴，匯聚成無聲的長河。」",
+      "「在喧囂的時代裡，你的這一次停頓，照亮了自己。」",
+      "「每一杯茶的溫度、每一片落葉，都在安頓我們的靈魂。」",
+      "「大道至簡，幸福一直在當下的呼吸裡。」"
+    ];
 
     document.getElementById('happiness-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -268,6 +389,15 @@
       const nickname = document.getElementById('nickname').value.trim();
       const category = document.getElementById('category').value;
       const content = document.getElementById('content').value.trim();
+      const honeypot = document.getElementById('hp_url').value; // 蜜罐欄位
+
+      // 30 秒冷卻防連點機制
+      const lastSubmitTime = localStorage.getItem('last_happiness_submit');
+      const now = Date.now();
+      if (lastSubmitTime && now - parseInt(lastSubmitTime) < 30000) {
+        alert('請稍後片刻再存入下一筆紀錄，給心靈留一點停頓的時間。');
+        return;
+      }
 
       if (!nickname || !content) return;
 
@@ -279,19 +409,32 @@
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ nickname, category, content })
+          body: JSON.stringify({ nickname, category, content, honeypot })
         });
 
-        alert('✨ 感謝您的微光！紀錄已送往開源帳本，系統正在自動蓋上時間戳記。\n\nThank you! Your moment has been recorded into the ledger and is being timestamped.');
+        localStorage.setItem('last_happiness_submit', now.toString());
         document.getElementById('happiness-form').reset();
+        showToast();
         setTimeout(loadLedger, 5000);
       } catch (err) {
-        alert('存入時出現了一點小狀況，請稍後重試。\n\nSomething went wrong. Please try again later.');
+        alert('存入時出現了一點小狀況，請稍後重試。');
       } finally {
         btn.disabled = false;
         btn.innerText = '✨ 存入這份幸福 / Deposit This Moment';
       }
     });
+
+    function showToast() {
+      const modal = document.getElementById('toast-modal');
+      const poemBox = document.getElementById('toast-blessing');
+      const randomPoem = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
+      poemBox.innerText = randomPoem;
+      modal.classList.add('active');
+    }
+
+    function closeToast() {
+      document.getElementById('toast-modal').classList.remove('active');
+    }
 
     async function loadLedger() {
       const container = document.getElementById('ledger');
@@ -305,21 +448,43 @@
           return;
         }
 
-        container.innerHTML = data.map(item => `
-          <article class="card">
-            <div class="card-meta-top">
-              <span class="card-author">${escapeHtml(item.author)}</span>
-              <span class="card-category">${escapeHtml(item.category)}</span>
-            </div>
-            <div class="card-content">${escapeHtml(item.content)}</div>
-            <div class="card-meta-bottom">
-              <span>Moment #${item.id}</span>
-              <time>${new Date(item.date).toLocaleDateString('zh-TW', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
-            </div>
-          </article>
-        `).join('');
+        globalLedgerData = data;
+        renderLedger(data);
       } catch (err) {
         renderEmptyState(container);
+      }
+    }
+
+    function renderLedger(data) {
+      const container = document.getElementById('ledger');
+      container.innerHTML = data.map(item => `
+        <article class="card" id="card-${item.id}">
+          <div class="card-meta-top">
+            <span class="card-author">${escapeHtml(item.author)}</span>
+            <span class="card-category">${escapeHtml(item.category)}</span>
+          </div>
+          <div class="card-content">${escapeHtml(item.content)}</div>
+          <div class="card-meta-bottom">
+            <span>Moment #${item.id}</span>
+            <time>${new Date(item.date).toLocaleDateString('zh-TW', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function pickRandomMoment() {
+      if (!globalLedgerData.length) {
+        alert('目前帳本尚在靜候第一筆紀錄。');
+        return;
+      }
+      const randomIndex = Math.floor(Math.random() * globalLedgerData.length);
+      const chosen = globalLedgerData[randomIndex];
+      const targetCard = document.getElementById(`card-${chosen.id}`);
+      
+      if (targetCard) {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('highlight'));
+        targetCard.classList.add('highlight');
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
 
