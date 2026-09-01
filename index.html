@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>幸福影響力記帳本 | 大道至簡</title>
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --card-bg: #ffffff;
+      --text-main: #2d3748;
+      --text-muted: #718096;
+      --accent: #8c6d53;
+      --border: #e2e8f0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      margin: 0;
+      padding: 2rem 1rem;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .btn-deposit {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.6rem 1.4rem;
+      background-color: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .btn-deposit:hover { opacity: 0.85; }
+    .ledger-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .card-category {
+      background: #f0ebe4;
+      color: var(--accent);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+    .card-content {
+      font-size: 1rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>幸福影響力記帳本</h1>
+      <p>每一份對生活的微小覺察與善意，都值得被恆久銘記。</p>
+      <!-- 替換為你的 GitHub 倉庫連結 -->
+      <a href="https://github.com/Alexchiachi/happiness-ledger/issues/new?template=record-happiness.yml" 
+         target="_blank" 
+         class="btn-deposit">
+        + 存入一筆幸福紀錄
+      </a>
+    </header>
+
+    <main class="ledger-stream" id="ledger"></main>
+  </div>
+
+  <script>
+    async function loadLedger() {
+      const container = document.getElementById('ledger');
+      try {
+        const res = await fetch('./data/ledger.json?t=' + Date.now());
+        const data = await res.json();
+        
+        if (!data.length) {
+          container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">尚無紀錄，歡迎成為第一位存入者。</p>';
+          return;
+        }
+
+        container.innerHTML = data.map(item => `
+          <article class="card">
+            <div class="card-meta">
+              <span><strong>${escapeHtml(item.author)}</strong></span>
+              <span class="card-category">${escapeHtml(item.category)}</span>
+            </div>
+            <div class="card-content">${escapeHtml(item.content)}</div>
+            <div class="card-meta" style="margin-top:0.75rem; margin-bottom:0;">
+              <span>#${item.id}</span>
+              <time>${new Date(item.date).toLocaleDateString('zh-TW')}</time>
+            </div>
+          </article>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p style="text-align:center;">載入帳本時出現問題，請稍候重試。</p>';
+      }
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    loadLedger();
+  </script>
+</body>
+</html>
