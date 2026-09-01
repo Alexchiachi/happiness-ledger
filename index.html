@@ -3,95 +3,288 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>幸福影響力記帳本 | 大道至簡</title>
+  <title>幸福影響力記帳本 | Happiness Ledger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #faf8f5;
-      --card-bg: #ffffff;
-      --text-main: #2d3748;
-      --text-muted: #718096;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #fdfbf7 0%, #f7f3ed 100%);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(226, 218, 206, 0.6);
+      --text-main: #332d29;
+      --text-sub: #7a7067;
+      --text-muted: #a3998e;
       --accent: #8c6d53;
-      --border: #e2e8f0;
+      --accent-hover: #735740;
+      --accent-light: #f3ede6;
+      --shadow-sm: 0 4px 20px rgba(140, 109, 83, 0.05);
+      --shadow-hover: 0 8px 30px rgba(140, 109, 83, 0.1);
     }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 2rem 1rem;
-      line-height: 1.6;
+      padding: 0;
     }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 3.5rem 1.25rem;
+      line-height: 1.7;
+      letter-spacing: 0.01em;
+    }
+
     .container {
-      max-width: 760px;
+      max-width: 680px;
       margin: 0 auto;
     }
+
     header {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 3.5rem;
     }
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 500;
-      color: var(--accent);
+
+    .brand-mark {
+      font-size: 1.5rem;
       margin-bottom: 0.5rem;
-    }
-    .btn-deposit {
       display: inline-block;
-      margin-top: 1rem;
-      padding: 0.6rem 1.4rem;
+      animation: gentle-breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes gentle-breathe {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+
+    h1 {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 2.1rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+
+    .sub-en-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+    }
+
+    .quote-box {
+      font-size: 0.98rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .quote-en {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      font-style: italic;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-deposit {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.6rem;
       background-color: var(--accent);
-      color: #fff;
+      color: #ffffff;
       text-decoration: none;
       border-radius: 999px;
-      font-size: 0.95rem;
-      transition: opacity 0.2s;
+      font-size: 0.92rem;
+      font-weight: 500;
+      box-shadow: 0 4px 14px rgba(140, 109, 83, 0.25);
+      transition: all 0.25s ease;
     }
-    .btn-deposit:hover { opacity: 0.85; }
+
+    .btn-deposit:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(140, 109, 83, 0.35);
+    }
+
+    .btn-deposit.secondary {
+      background-color: #ffffff;
+      color: var(--accent);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-deposit.secondary:hover {
+      background-color: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 3rem 0 2.5rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .divider::before, .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--card-border);
+      margin: 0 1rem;
+    }
+
     .ledger-stream {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1.5rem;
     }
+
     .card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem 1.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
     }
-    .card-meta {
+
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+      border-color: rgba(140, 109, 83, 0.3);
+    }
+
+    .card-meta-top {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px dashed rgba(226, 218, 206, 0.8);
     }
+
+    .card-author {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
     .card-category {
-      background: #f0ebe4;
+      background: var(--accent-light);
       color: var(--accent);
-      padding: 0.2rem 0.6rem;
-      border-radius: 6px;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
     }
+
     .card-content {
       font-size: 1rem;
+      color: var(--text-main);
       white-space: pre-wrap;
+      line-height: 1.8;
+      font-family: 'Noto Serif TC', serif;
+    }
+
+    .card-meta-bottom {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 1.2rem;
+    }
+
+    .state-box {
+      text-align: center;
+      padding: 3.5rem 1.5rem;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px dashed var(--card-border);
+      color: var(--text-sub);
+    }
+
+    .state-icon {
+      font-size: 2rem;
+      margin-bottom: 0.8rem;
+      display: inline-block;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
+
   <div class="container">
     <header>
+      <div class="brand-mark">🌸</div>
       <h1>幸福影響力記帳本</h1>
-      <p>每一份對生活的微小覺察與善意，都值得被恆久銘記。</p>
-      <!-- 替換為你的 GitHub 倉庫連結 -->
-      <a href="https://github.com/Alexchiachi/happiness-ledger/issues/new?template=record-happiness.yml" 
-         target="_blank" 
-         class="btn-deposit">
-        + 存入一筆幸福紀錄
-      </a>
+      <div class="sub-en-title">The Happiness Ledger</div>
+      
+      <div class="quote-box">
+        每一份對生活的微小覺察與善意，都值得被恆久銘記。
+        <span class="quote-en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
+      </div>
+
+      <div class="btn-group">
+        <a href="https://github.com/Alexchiachi/happiness-ledger/issues/new?template=record-happiness-zh.yml&labels=happiness-record" 
+           target="_blank" 
+           class="btn-deposit">
+          <span>+ 存入一筆幸福</span>
+        </a>
+        <a href="https://github.com/Alexchiachi/happiness-ledger/issues/new?template=record-happiness-en.yml&labels=happiness-record" 
+           target="_blank" 
+           class="btn-deposit secondary">
+          <span>+ Deposit a Moment (EN)</span>
+        </a>
+      </div>
     </header>
 
-    <main class="ledger-stream" id="ledger"></main>
+    <div class="divider">MOMENTS OF LIGHT • 幸福流動</div>
+
+    <main class="ledger-stream" id="ledger">
+      <div class="state-box">
+        <span class="state-icon">🕊️</span>
+        <p>正在載入微光紀錄 / Loading records...</p>
+      </div>
+    </main>
+
+    <footer>
+      <p>大道至簡 · 一人公司開源數位行為藝術</p>
+      <p style="margin-top:0.25rem;">Powered by GitHub Pages & Actions | <a href="https://github.com/Alexchiachi/happiness-ledger" target="_blank">View on GitHub</a></p>
+    </footer>
   </div>
 
   <script>
@@ -99,29 +292,45 @@
       const container = document.getElementById('ledger');
       try {
         const res = await fetch('./data/ledger.json?t=' + Date.now());
+        if (!res.ok) {
+          throw new Error('Ledger not initialized yet');
+        }
         const data = await res.json();
         
-        if (!data.length) {
-          container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">尚無紀錄，歡迎成為第一位存入者。</p>';
+        if (!data || !data.length) {
+          renderEmptyState(container);
           return;
         }
 
         container.innerHTML = data.map(item => `
           <article class="card">
-            <div class="card-meta">
-              <span><strong>${escapeHtml(item.author)}</strong></span>
+            <div class="card-meta-top">
+              <span class="card-author">${escapeHtml(item.author)}</span>
               <span class="card-category">${escapeHtml(item.category)}</span>
             </div>
             <div class="card-content">${escapeHtml(item.content)}</div>
-            <div class="card-meta" style="margin-top:0.75rem; margin-bottom:0;">
-              <span>#${item.id}</span>
-              <time>${new Date(item.date).toLocaleDateString('zh-TW')}</time>
+            <div class="card-meta-bottom">
+              <span>Moment #${item.id}</span>
+              <time>${new Date(item.date).toLocaleDateString('zh-TW', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
             </div>
           </article>
         `).join('');
       } catch (err) {
-        container.innerHTML = '<p style="text-align:center;">載入帳本時出現問題，請稍候重試。</p>';
+        renderEmptyState(container);
       }
+    }
+
+    function renderEmptyState(container) {
+      container.innerHTML = `
+        <div class="state-box">
+          <span class="state-icon">🍃</span>
+          <p style="font-weight: 500; margin-bottom: 0.4rem; color: var(--text-main);">靜候第一份微光存入</p>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">
+            帳本已準備就緒。點擊上方按鈕，留下第一筆溫暖的生命覺察。<br>
+            <em>The ledger is ready. Click above to deposit the very first moment.</em>
+          </p>
+        </div>
+      `;
     }
 
     function escapeHtml(str) {
