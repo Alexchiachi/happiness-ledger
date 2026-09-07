@@ -4,29 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幸福影響力記帳本 | The Happiness Ledger</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta name="description" content="每一份對生活的微小覺察與善意，都值得被恆久銘記。免登入，隨時存入當下的感知與微光 —— 一個開源的數位行為藝術。">
+  <meta name="theme-color" content="#f7f3ed">
+  <link rel="canonical" href="https://alexchiachi.github.io/happiness-ledger/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="幸福影響力記帳本">
+  <meta property="og:title" content="幸福影響力記帳本 | The Happiness Ledger">
+  <meta property="og:description" content="每一份對生活的微小覺察與善意，都值得被恆久銘記。免登入，隨時存入當下的感知與微光。">
+  <meta property="og:url" content="https://alexchiachi.github.io/happiness-ledger/">
+  <meta property="og:image" content="https://alexchiachi.github.io/happiness-ledger/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="幸福影響力記帳本 The Happiness Ledger">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="幸福影響力記帳本 | The Happiness Ledger">
+  <meta name="twitter:description" content="每一份對生活的微小覺察與善意，都值得被恆久銘記。免登入，隨時存入當下的感知與微光。">
+  <meta name="twitter:image" content="https://alexchiachi.github.io/happiness-ledger/og-image.png">
   <style>
     :root {
+      /* 不使用網頁字型：CJK 網頁字型動輒數 MB，且 Google Fonts 在部分地區
+         連不上時會阻擋渲染，讓頁面長時間空白。改用各系統內建的字型。 */
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+                   "PingFang TC", "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft JhengHei", "Microsoft YaHei",
+                   "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
+      --font-serif: "Songti TC", "Songti SC", "STSong",
+                    "Source Han Serif TC", "Noto Serif CJK TC",
+                    "MS Mincho", "SimSun", "PMingLiU",
+                    Georgia, "Times New Roman", serif;
       --bg-gradient: radial-gradient(circle at 50% 0%, #fdfbf7 0%, #f7f3ed 100%);
       --card-bg: rgba(255, 255, 255, 0.88);
       --card-border: rgba(226, 218, 206, 0.7);
       --text-main: #332d29;
       --text-sub: #7a7067;
-      --text-muted: #a3998e;
+      --text-muted: #776c5f;   /* 4.64:1 對頁面底、5.09:1 對卡片底（WCAG AA）*/
       --accent: #8c6d53;
       --accent-hover: #735740;
       --accent-light: #f3ede6;
+      --accent-on-light: #7f6249;  /* 4.82:1 對 --accent-light，供膠囊等小字使用 */
       --shadow-sm: 0 4px 20px rgba(140, 109, 83, 0.05);
       --shadow-hover: 0 8px 30px rgba(140, 109, 83, 0.1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* 尊重「減少動態效果」的系統設定：呼吸動畫是無限循環的，
+       對前庭敏感的使用者是實際的不適來源。 */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      font-family: var(--font-sans);
       background: var(--bg-gradient);
       color: var(--text-main);
       min-height: 100vh;
@@ -49,7 +88,7 @@
     }
 
     h1 {
-      font-family: 'Noto Serif TC', serif;
+      font-family: var(--font-serif);
       font-size: 2rem;
       font-weight: 600;
       color: var(--accent);
@@ -178,6 +217,13 @@
       letter-spacing: 0.2em;
     }
 
+    /* 窄螢幕上工具列左右並排會擠成兩行難看的斷字，改為上下堆疊 */
+    @media (max-width: 480px) {
+      .toolbar { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+      .divider-text { text-align: center; }
+      .btn-random { justify-content: center; }
+    }
+
     .btn-random {
       background: #ffffff;
       border: 1px solid var(--card-border);
@@ -213,15 +259,18 @@
       display: flex; justify-content: space-between; align-items: center;
       font-size: 0.85rem; margin-bottom: 1rem; padding-bottom: 0.6rem;
       border-bottom: 1px dashed rgba(226, 218, 206, 0.8);
+      /* 自訂類別可能很長，允許換行而不是撐破卡片 */
+      flex-wrap: wrap; gap: 0.5rem;
     }
-    .card-author { font-weight: 600; }
+    .card-author { font-weight: 600; overflow-wrap: anywhere; }
     .card-category {
-      background: var(--accent-light); color: var(--accent);
+      background: var(--accent-light); color: var(--accent-on-light);
       padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.78rem;
+      max-width: 100%; overflow-wrap: anywhere; text-align: right;
     }
     .card-content {
       font-size: 1rem; white-space: pre-wrap; line-height: 1.8;
-      font-family: 'Noto Serif TC', serif;
+      font-family: var(--font-serif);
     }
     .card-meta-bottom {
       display: flex; justify-content: space-between;
@@ -246,11 +295,19 @@
       padding: 1.25rem;
       z-index: 999;
       opacity: 0;
+      /* visibility 讓彈窗關閉時真正離開無障礙樹與 Tab 順序，
+         同時保留淡入淡出。只用 opacity 的話螢幕閱讀器仍讀得到裡面的文字。 */
+      visibility: hidden;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
     }
 
-    .toast-overlay.active { opacity: 1; pointer-events: auto; }
+    .toast-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity 0.3s ease;
+    }
 
     .toast-card {
       background: #ffffff;
@@ -268,7 +325,7 @@
     .toast-overlay.active .toast-card { transform: translateY(0); }
 
     .toast-poem {
-      font-family: 'Noto Serif TC', serif;
+      font-family: var(--font-serif);
       font-size: 1.05rem;
       color: var(--accent);
       line-height: 1.8;
@@ -299,10 +356,10 @@
     <header>
       <div class="brand-mark">🌸</div>
       <h1>幸福影響力記帳本</h1>
-      <div class="sub-en-title">The Happiness Ledger</div>
+      <div class="sub-en-title" lang="en">The Happiness Ledger</div>
       <div class="quote-box">
         每一份對生活的微小覺察與善意，都值得被恆久銘記。
-        <span class="quote-en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
+        <span class="quote-en" lang="en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
         <span class="quote-en" style="margin-top:0.25rem;">免登入 · 隨時存入當下的感知與微光 / No login required · Deposit your moment anytime</span>
       </div>
     </header>
@@ -312,12 +369,12 @@
         <input type="text" id="hp_url" name="hp_url" class="hp-field" tabindex="-1" autocomplete="off">
 
         <div class="form-group">
-          <label for="nickname">您的稱呼 <span class="label-en">/ Your Moniker</span></label>
-          <input type="text" id="nickname" required placeholder="例如：南投旅人、中年大叔、漫步者 / e.g. Kyoto Wanderer, Middle-Aged Walker, Anonymous">
+          <label for="nickname">您的稱呼 <span class="label-en" lang="en">/ Your Moniker</span></label>
+          <input type="text" id="nickname" required placeholder="例如：南投旅人、漫步者">
         </div>
         
         <div class="form-group">
-          <label for="category">幸福微類型 <span class="label-en">/ Micro-Category</span></label>
+          <label for="category">幸福微類型 <span class="label-en" lang="en">/ Micro-Category</span></label>
           <select id="category" required onchange="handleCategoryChange(this)">
             <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察（飲食、氣味、光影） / Sensory Awareness (Taste, Aroma, Light)</option>
             <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意（給予、傾聽、微笑） / Subtle Kindness (Giving, Listening, Smiling)</option>
@@ -328,13 +385,13 @@
           
           <!-- 選取「其他」時展開的輸入框 -->
           <div class="custom-category-group" id="custom-cat-box">
-            <input type="text" id="custom_category" placeholder="請填寫您自訂的幸福類型（例如：手作烘焙、山林獨處）/ Custom category name">
+            <input type="text" id="custom_category" placeholder="例如：手作烘焙、山林獨處 / Custom category">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="content">幸福感知內容 <span class="label-en">/ Moment of Awareness</span></label>
-          <textarea id="content" rows="3" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意...&#10;Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..."></textarea>
+          <label for="content">幸福感知內容 <span class="label-en" lang="en">/ Moment of Awareness</span></label>
+          <textarea id="content" rows="5" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意...&#10;Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..."></textarea>
         </div>
 
         <button type="submit" id="submit-btn" class="btn-submit">✨ 存入這份幸福 / Deposit This Moment</button>
@@ -342,7 +399,7 @@
     </section>
 
     <div class="toolbar">
-      <div class="divider-text">MOMENTS OF LIGHT • 幸福流動</div>
+      <div class="divider-text"><span lang="en">MOMENTS OF LIGHT</span> • 幸福流動</div>
       <button class="btn-random" onclick="pickRandomMoment()">🎲 遇見一份微光 / Random</button>
     </div>
 
@@ -350,22 +407,23 @@
       <div class="state-box">
         <span class="state-icon">🕊️</span>
         <p style="font-weight: 500; color: var(--text-main);">正在載入微光紀錄...</p>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">Loading records...</p>
+        <p lang="en" style="font-size: 0.85rem; color: var(--text-muted);">Loading records...</p>
       </div>
     </main>
 
     <footer>
       <p>大道至簡 · 一人公司開源數位行為藝術</p>
-      <p style="font-size: 0.75rem; color: var(--text-muted);">Dao Is Simple: Open-Source Behavioral Art for Solopreneurs</p>
+      <p lang="en" style="font-size: 0.75rem; color: var(--text-muted);">Dao Is Simple: Open-Source Behavioral Art for Solopreneurs</p>
       <p style="margin-top:0.4rem;">Powered by GitHub & Google Apps Script | <a href="https://github.com/Alexchiachi/happiness-ledger" target="_blank">View on GitHub</a></p>
     </footer>
   </div>
 
-  <div class="toast-overlay" id="toast-modal">
+  <div class="toast-overlay" id="toast-modal" role="dialog" aria-modal="true"
+       aria-labelledby="toast-title" aria-hidden="true">
     <div class="toast-card">
-      <div style="font-size: 2rem;">🕊️</div>
-      <h3 style="font-family:'Noto Serif TC',serif; color:var(--text-main); margin-top:0.4rem;">微光已存入帳本</h3>
-      <p style="font-size:0.8rem; color:var(--text-muted);">Your moment is now permanently recorded.</p>
+      <div style="font-size: 2rem;" aria-hidden="true">🕊️</div>
+      <h3 id="toast-title" style="font-family:var(--font-serif); color:var(--text-main); margin-top:0.4rem;">微光已存入帳本</h3>
+      <p lang="en" style="font-size:0.8rem; color:var(--text-muted);">Your moment is now permanently recorded.</p>
       
       <div class="toast-poem" id="toast-blessing">
         「慢下來，感知每一縷微風，生活原本就很美。」
@@ -447,17 +505,49 @@
       }
     });
 
+    let lastFocusedBeforeToast = null;
+
+    // 彈窗開啟時把鍵盤焦點關在裡面，否則使用者會 Tab 到背後看不見的表單上。
+    function trapToastKeys(e) {
+      const modal = document.getElementById('toast-modal');
+      if (e.key === 'Escape') { closeToast(); return; }
+      if (e.key !== 'Tab') return;
+      const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+
     function showToast() {
       const modal = document.getElementById('toast-modal');
       const poemBox = document.getElementById('toast-blessing');
       const randomPoem = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
       poemBox.innerText = randomPoem;
+
+      lastFocusedBeforeToast = document.activeElement;
       modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      document.addEventListener('keydown', trapToastKeys);
+      const closeBtn = modal.querySelector('.btn-toast-close');
+      if (closeBtn) closeBtn.focus();
     }
 
     function closeToast() {
-      document.getElementById('toast-modal').classList.remove('active');
+      const modal = document.getElementById('toast-modal');
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.removeEventListener('keydown', trapToastKeys);
+      // 焦點歸還到開啟前的位置，鍵盤使用者才不會被丟回頁面最上方
+      if (lastFocusedBeforeToast && lastFocusedBeforeToast.focus) lastFocusedBeforeToast.focus();
+      lastFocusedBeforeToast = null;
     }
+
+    // 點擊彈窗外的暗色區域也能關閉
+    document.getElementById('toast-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeToast();
+    });
 
     async function loadLedger() {
       const container = document.getElementById('ledger');
@@ -507,7 +597,8 @@
       if (targetCard) {
         document.querySelectorAll('.card').forEach(c => c.classList.remove('highlight'));
         targetCard.classList.add('highlight');
-        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        targetCard.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'center' });
       }
     }
 
