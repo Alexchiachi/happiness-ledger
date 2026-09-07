@@ -4,12 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幸福影響力記帳本 | The Happiness Ledger</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
   <style>
     :root {
+      /* 不使用網頁字型：CJK 網頁字型動輒數 MB，且 Google Fonts 在部分地區
+         連不上時會阻擋渲染，讓頁面長時間空白。改用各系統內建的字型。 */
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+                   "PingFang TC", "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft JhengHei", "Microsoft YaHei",
+                   "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
+      --font-serif: "Songti TC", "Songti SC", "STSong",
+                    "Source Han Serif TC", "Noto Serif CJK TC",
+                    "MS Mincho", "SimSun", "PMingLiU",
+                    Georgia, "Times New Roman", serif;
       --bg-gradient: radial-gradient(circle at 50% 0%, #fdfbf7 0%, #f7f3ed 100%);
       --card-bg: rgba(255, 255, 255, 0.88);
       --card-border: rgba(226, 218, 206, 0.7);
@@ -26,7 +32,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      font-family: var(--font-sans);
       background: var(--bg-gradient);
       color: var(--text-main);
       min-height: 100vh;
@@ -49,7 +55,7 @@
     }
 
     h1 {
-      font-family: 'Noto Serif TC', serif;
+      font-family: var(--font-serif);
       font-size: 2rem;
       font-weight: 600;
       color: var(--accent);
@@ -221,7 +227,7 @@
     }
     .card-content {
       font-size: 1rem; white-space: pre-wrap; line-height: 1.8;
-      font-family: 'Noto Serif TC', serif;
+      font-family: var(--font-serif);
     }
     .card-meta-bottom {
       display: flex; justify-content: space-between;
@@ -268,7 +274,7 @@
     .toast-overlay.active .toast-card { transform: translateY(0); }
 
     .toast-poem {
-      font-family: 'Noto Serif TC', serif;
+      font-family: var(--font-serif);
       font-size: 1.05rem;
       color: var(--accent);
       line-height: 1.8;
@@ -364,7 +370,7 @@
   <div class="toast-overlay" id="toast-modal">
     <div class="toast-card">
       <div style="font-size: 2rem;">🕊️</div>
-      <h3 style="font-family:'Noto Serif TC',serif; color:var(--text-main); margin-top:0.4rem;">微光已存入帳本</h3>
+      <h3 style="font-family:var(--font-serif); color:var(--text-main); margin-top:0.4rem;">微光已存入帳本</h3>
       <p style="font-size:0.8rem; color:var(--text-muted);">Your moment is now permanently recorded.</p>
       
       <div class="toast-poem" id="toast-blessing">
