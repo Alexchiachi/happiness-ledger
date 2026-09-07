@@ -47,15 +47,16 @@ GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 | 路徑 | 說明 |
 | :--- | :--- |
 | `index.html` | 整個前端。單一檔案，無框架、無建置流程 |
-| `gas/Code.gs` | GAS 中繼的原始碼**副本**。實際執行的在 Google，**不會自動同步**（PR #17）|
-| `gas/README.md` | 部署步驟、token 權限、錯誤碼對照（PR #17）|
+| `gas/Code.gs` | GAS 中繼的原始碼**副本**。實際執行的在 Google，**不會自動同步** |
+| `gas/README.md` | 部署步驟、token 權限、錯誤碼對照 |
 | `.github/workflows/record-to-ledger.yml` | Issue → 帳本的自動化 |
 | `.github/scripts/update-ledger.js` | 解析與寫入的實際邏輯 |
 | `.github/ISSUE_TEMPLATE/` | 中英文存入表單 |
 | `data/ledger.json` | 卡片牆的資料來源 |
 | `data/records/*.md` | 逐筆封存 |
-| `tools/import-records.js` | 從外部帳本遷移紀錄（PR #21）|
-| `docs/CN_LEDGER_SPEC.md` | 大陸版建置規格與資料契約（PR #21）|
+| `tools/import-records.js` | 從外部帳本遷移紀錄 |
+| `docs/CN_LEDGER_SPEC.md` | 大陸版建置規格與資料契約 |
+| `docs/LEDGER_PROTOCOL.md` | 兩本帳本之間的協定：角色、交接流程、交握訊息 |
 | `CONTRIBUTING.md` | 內容準則（四要四不）|
 
 ---
@@ -76,7 +77,7 @@ GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 }
 ```
 
-`id` 是 **GitHub Issue 編號**。`source` 與 `origin_id` 僅遷移紀錄才有（PR #21）。
+`id` 是 **GitHub Issue 編號**。`source` 與 `origin_id` 僅遷移紀錄才有。
 
 **Issue 內文**由 `### 小標題` 分段，解析器靠這些標題取值：
 
@@ -84,9 +85,9 @@ GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 ### 您的稱呼 / 筆名     （或英文 Your Name / Moniker）
 ### 幸福微類型          （或英文 Micro-Category）
 ### 幸福感知內容        （或英文 Your Moment of Awareness）
-### 原始存入時間        （可選，遷移用，PR #21）
-### 來源                （可選，遷移用，PR #21）
-### 原始編號            （可選，遷移用，PR #21）
+### 原始存入時間        （可選，遷移用）
+### 來源                （可選，遷移用）
+### 原始編號            （可選，遷移用）
 ```
 
 ---
@@ -131,8 +132,7 @@ fine-grained token 必須用 **`Bearer`**。用舊寫法會拿到 401，而
 `index.html` 刻意不使用 Google Fonts。字型 `<link>` 是**阻擋渲染**的請求，
 在連不到的網路環境（例如中國大陸）會讓頁面長時間空白。CJK 網頁字型也動輒數 MB。
 
-**PR #20 合併後，頁面載入時的外部請求數為 0，請維持這個狀態。**
-（`main` 目前仍載入 Google Fonts，該 PR 尚未合併。）
+**目前頁面載入時的外部請求數為 0，請維持這個狀態。**
 
 ### ❌ 不要直接改寫 `data/ledger.json`
 
@@ -206,7 +206,7 @@ Playwright 已可用（Chromium 在 `/opt/pw-browsers/chromium`）。實測時**
 
 ### 對比度
 
-修改色彩後請重算 WCAG 對比。PR #20 合併後的數值（皆通過 AA）：
+修改色彩後請重算 WCAG 對比。現況（皆通過 AA）：
 
 | 用途 | 比值 |
 | :--- | ---: |
@@ -226,15 +226,3 @@ Playwright 已可用（Chromium 在 `/opt/pw-browsers/chromium`）。實測時**
 （「微光」「存入」「安住此心」），**不要改成一般產品的語氣**。
 
 錯誤訊息也一樣：要誠實，但不必冷硬。
-
----
-
-## 目前開啟中的 PR
-
-本文件描述 `main` 的狀態。以下改動尚在審查：
-
-- **#17** — 將 `gas/Code.gs` 納入版控
-- **#20** — 系統字型、OG 分享標籤、對比度、彈窗鍵盤可用性
-- **#21** — 大陸版資料契約與遷移工具
-
-若這些已合併，請刪除本節。
