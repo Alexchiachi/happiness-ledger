@@ -56,6 +56,7 @@ GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 | `data/records/*.md` | 逐筆封存 |
 | `tools/import-records.js` | 從外部帳本遷移紀錄 |
 | `docs/CN_LEDGER_SPEC.md` | 大陸版建置規格與資料契約 |
+| `docs/LEDGER_PROTOCOL.md` | 兩本帳本之間的協定：角色、交接流程、交握訊息 |
 | `CONTRIBUTING.md` | 內容準則（四要四不）|
 
 ---
