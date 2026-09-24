@@ -1,0 +1,61 @@
+name: Deploy Worker Relay
+
+# worker/ 有改動並合併到 main 時，自動部署 Cloudflare Worker 中繼。
+# 需要三個 repo secrets（Settings → Secrets and variables → Actions），見 worker/README.md：
+#   CLOUDFLARE_API_TOKEN、CLOUDFLARE_ACCOUNT_ID、LEDGER_ISSUES_TOKEN
+# 尚未設定時整個部署會略過，不會失敗，也不影響現有的 GAS 中繼。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch: # 設好 secrets 後可在 Actions 頁面手動執行第一次部署
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Worker logic
+        run: node worker/test.mjs
+
+      - name: Check secrets
+        id: secrets
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ISSUES_TOKEN: ${{ secrets.LEDGER_ISSUES_TOKEN }}
+        run: |
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ] && [ -n "$ISSUES_TOKEN" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::尚未設定 CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID / LEDGER_ISSUES_TOKEN，略過部署。"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy to Cloudflare
+        if: steps.secrets.outputs.ready == 'true'
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Worker 呼叫 GitHub API 用的 token。repo secret 不能以 GITHUB_ 開頭，
+          # 所以在 repo 端叫 LEDGER_ISSUES_TOKEN，部署後寫成 Worker 的 GITHUB_TOKEN。
+          ISSUES_TOKEN: ${{ secrets.LEDGER_ISSUES_TOKEN }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          set -euo pipefail
+          # 先部署再寫 secret：第一次部署時 Worker 還不存在，無法先寫 secret。
+          # 部署不會清掉既有的 secret。
+          npx -y wrangler@4 deploy
+          printf '%s' "$ISSUES_TOKEN" | npx -y wrangler@4 secret put GITHUB_TOKEN

@@ -54,6 +54,7 @@ GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 | `worker/` | Cloudflare Worker 中繼（GAS 的替代品），綁 `ledger-api.daoissimple.com`。部署見 `worker/README.md` |
 | `.github/workflows/record-to-ledger.yml` | Issue → 帳本的自動化 |
 | `.github/scripts/update-ledger.js` | 解析與寫入的實際邏輯 |
+| `.github/workflows/deploy-worker.yml` | `worker/` 合併到 main 時自動部署 Worker；secrets 未設齊則略過 |
 | `.github/ISSUE_TEMPLATE/` | 中英文存入表單 |
 | `data/ledger.json` | 卡片牆的資料來源 |
 | `data/records/*.md` | 逐筆封存 |

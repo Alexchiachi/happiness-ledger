@@ -42,11 +42,14 @@ function doPost(e) {
       return json_({ ok: false, error: '欄位不得為空' });
     }
 
+    // 使用者文字裡的 ### 會截斷欄位，甚至能偽造「原始存入時間」等遷移欄位，一律換成全形。
+    const neutralize = (s) => String(s).replace(/#{3,}/g, (m) => '＃'.repeat(m.length));
+
     // 這些 ### 小標題是給 workflow 的解析器辨識欄位用的，不要隨意更動。
     const issueBody =
-      `### 您的稱呼 / 筆名\n\n${nickname}\n\n` +
-      `### 幸福微類型\n\n${category}\n\n` +
-      `### 幸福感知內容\n\n${content}`;
+      `### 您的稱呼 / 筆名\n\n${neutralize(nickname)}\n\n` +
+      `### 幸福微類型\n\n${neutralize(category)}\n\n` +
+      `### 幸福感知內容\n\n${neutralize(content)}`;
 
     const response = UrlFetchApp.fetch(
       `https://api.github.com/repos/${GITHUB_REPO}/issues`,

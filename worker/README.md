@@ -37,24 +37,49 @@ Worker 要綁 `ledger-api.daoissimple.com`，這個網域就得是 Cloudflare �
 
 > 若不想動整個網域的 DNS，也可以另買一個便宜網域專門給中繼用，步驟相同。
 
-### 1. 產生 GitHub token
+### 1. 產生兩把 token
 
-可以沿用 GAS 那一把，或另開一把（建議另開，兩邊可以各自撤銷）：
+**Cloudflare API token**（在代管 `daoissimple.com` 的那個帳號）：
+
+1. 右上角頭像 → My Profile → API Tokens → Create Token → 範本 **Edit Cloudflare Workers**
+2. Account Resources：只選該帳號；Zone Resources：Specific zone → `daoissimple.com`
+3. 另加一條權限 **Zone → DNS → Edit**（綁自訂網域時會建立 DNS 紀錄）
+
+同一個帳號的 **Account ID** 在網域概覽頁右側「API」區塊。
+
+**GitHub fine-grained token**（給 Worker 開 Issue 用，可沿用 GAS 那一把，建議另開）：
 
 | 項目 | 設定 |
 | :--- | :--- |
-| 類型 | Fine-grained personal access token |
 | Repository access | Only select repositories → `happiness-ledger` |
 | Repository permissions | Issues: **Read and write** |
 
-### 2. 部署
+### 2. 放進 GitHub，由 Actions 部署
+
+repo → **Settings → Secrets and variables → Actions → New repository secret**，新增三個：
+
+| 名稱 | 內容 |
+| :--- | :--- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token |
+| `CLOUDFLARE_ACCOUNT_ID` | Account ID |
+| `LEDGER_ISSUES_TOKEN` | GitHub fine-grained token（repo secret 不能以 `GITHUB_` 開頭，部署時會寫成 Worker 的 `GITHUB_TOKEN`）|
+
+接著到 **Actions → Deploy Worker Relay → Run workflow** 執行第一次部署。
+之後只要 `worker/` 有改動合併到 `main`，就會自動重新部署（`.github/workflows/deploy-worker.yml`）。
+secrets 未設齊時部署步驟會略過，不會失敗。
+
+換 token：更新 repo secret 後重跑一次這個 workflow。
+
+<details>
+<summary>也可以在自己電腦上部署</summary>
 
 ```bash
 cd worker
 npx wrangler login
-npx wrangler secret put GITHUB_TOKEN     # 貼上 token
+npx wrangler secret put GITHUB_TOKEN     # 貼上 GitHub token
 npx wrangler deploy
 ```
+</details>
 
 ### 3. 驗證
 
