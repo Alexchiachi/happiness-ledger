@@ -1,0 +1,30 @@
+# 幸福影響力記帳本 — Cloudflare Worker 中繼設定
+# 部署步驟見 worker/README.md
+
+name = "happiness-ledger-relay"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# workers.dev 網域在中國大陸常被封鎖，正式入口一律用自訂網域。
+workers_dev = false
+
+# 需要 daoissimple.com 的 DNS 已由 Cloudflare 代管，否則部署會報「找不到 zone」。
+routes = [
+  { pattern = "ledger-api.daoissimple.com", custom_domain = true }
+]
+
+[vars]
+GITHUB_REPO = "Alexchiachi/happiness-ledger"
+# 以逗號分隔。本機測試用的 localhost 上線後可移除。
+ALLOWED_ORIGINS = "https://alexchiachi.github.io,http://localhost:8899"
+
+# 依 IP 節流：每個 IP 每 60 秒最多 2 次。period 只能是 10 或 60。
+[[ratelimits]]
+name = "SUBMIT_LIMITER"
+namespace_id = "1001"
+  [ratelimits.simple]
+  limit = 2
+  period = 60
+
+# GITHUB_TOKEN 是 secret，不寫在這裡：
+#   npx wrangler secret put GITHUB_TOKEN

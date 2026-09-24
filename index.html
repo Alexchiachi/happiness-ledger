@@ -203,6 +203,15 @@
       cursor: not-allowed;
     }
 
+    .submit-status {
+      margin-top: 0.9rem;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--text-main);
+      text-align: center;
+    }
+    .submit-status:empty { display: none; }
+
     .toolbar {
       display: flex;
       align-items: center;
@@ -395,6 +404,7 @@
         </div>
 
         <button type="submit" id="submit-btn" class="btn-submit">✨ 存入這份幸福 / Deposit This Moment</button>
+        <p id="submit-status" class="submit-status" role="status" aria-live="polite"></p>
       </form>
     </section>
 
@@ -423,7 +433,7 @@
     <div class="toast-card">
       <div style="font-size: 2rem;" aria-hidden="true">🕊️</div>
       <h3 id="toast-title" style="font-family:var(--font-serif); color:var(--text-main); margin-top:0.4rem;">微光已存入帳本</h3>
-      <p lang="en" style="font-size:0.8rem; color:var(--text-muted);">Your moment is now permanently recorded.</p>
+      <p id="toast-subtitle" style="font-size:0.8rem; color:var(--text-muted);">Your moment is now permanently recorded.</p>
       
       <div class="toast-poem" id="toast-blessing">
         「慢下來，感知每一縷微風，生活原本就很美。」
@@ -434,7 +444,14 @@
   </div>
 
   <script>
-    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzl-bRgCui8qXSah34KEEU7ZNWqcowHuOKtjXJ21UNe6TQZ3JOJy1BAindkrQd1Jc0u/exec';
+    // 存入的中繼。目前是 Google Apps Script（gas/Code.gs）；
+    // Cloudflare Worker（worker/）部署完成後，改成 'https://ledger-api.daoissimple.com/'。
+    // 兩者回應格式相同：{ ok, number } 或 { ok: false, error }。
+    const RELAY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzl-bRgCui8qXSah34KEEU7ZNWqcowHuOKtjXJ21UNe6TQZ3JOJy1BAindkrQd1Jc0u/exec';
+
+    // workflow 約 15 秒，之後還有 Pages 重建，通常一兩分鐘內就會出現在帳本上。
+    const CONFIRM_INTERVAL_MS = 5000;
+    const CONFIRM_TIMEOUT_MS = 180000;
     let globalLedgerData = [];
 
     const BLESSINGS = [
@@ -483,27 +500,95 @@
 
       btn.disabled = true;
       btn.innerText = '🕊️ 正在存入帳本中... / Depositing...';
+      setStatus('');
 
+      const form = document.getElementById('happiness-form');
+      const clearForm = () => {
+        form.reset();
+        document.getElementById('custom-cat-box').style.display = 'none';
+      };
+
+      // 送出。拿不到回應（網路不通、或中繼沒回 CORS 標頭）時 result 為 null ——
+      // 這時請求可能已經到了，所以絕不自動重送，否則會產生重複紀錄。
+      let result = null;
       try {
-        await fetch(GAS_ENDPOINT, {
+        const res = await fetch(RELAY_ENDPOINT, {
           method: 'POST',
-          mode: 'no-cors',
+          // text/plain 屬於簡單請求，不會觸發 CORS 預檢
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ nickname, category: finalCategory, content, honeypot })
         });
-
-        localStorage.setItem('last_happiness_submit', now.toString());
-        document.getElementById('happiness-form').reset();
-        document.getElementById('custom-cat-box').style.display = 'none';
-        showToast();
-        setTimeout(loadLedger, 5000);
+        try { result = await res.json(); } catch { result = null; }  // 讀不懂的回應一樣視為無法確認
       } catch (err) {
-        alert('存入時出現了一點小狀況，請稍後重試。');
+        result = null;
+      }
+      localStorage.setItem('last_happiness_submit', now.toString());
+
+      try {
+        if (result && !result.ok) {
+          // 中繼明確拒絕：文字留在表單裡，讓使用者修改或稍後再送。
+          setStatus((result.error ? result.error + '。' : '這筆紀錄沒有被收下。') + '您寫下的文字仍保留著，可以稍後再試。');
+          return;
+        }
+
+        if (result && result.ok) {
+          // 已確實收下，文字已安全存放，可以清空表單。
+          clearForm();
+          showToast(false);
+          btn.innerText = '🕊️ 正在寫入帳本... / Recording...';
+          const found = await waitForRecord(result.number
+            ? item => item.id === result.number
+            : item => item.author === nickname && item.content === content);
+          if (found) { confirmToast(found.id); }
+          else {
+            closeToast();
+            const ref = result.number ? `（Moment #${result.number}）` : '';
+            setStatus(`這筆紀錄已安全收下${ref}，帳本更新得比平常慢，稍後重新整理即可看見。`);
+          }
+          return;
+        }
+
+        // 無法確認是否送達：保留表單，到帳本裡找找看。
+        setStatus('無法確認是否送達，正在帳本中尋找您的這筆紀錄⋯⋯請先不要重送。');
+        btn.innerText = '🕊️ 確認中... / Checking...';
+        const found = await waitForRecord(item => item.author === nickname && item.content === content);
+        if (found) {
+          clearForm();
+          setStatus('');
+          showToast(false);
+          confirmToast(found.id);
+        } else {
+          setStatus('帳本裡仍未看見這筆紀錄，可能沒有送達。您寫下的文字仍保留著，可以稍後再試一次。');
+        }
       } finally {
         btn.disabled = false;
         btn.innerText = '✨ 存入這份幸福 / Deposit This Moment';
       }
     });
+
+    function setStatus(msg) {
+      document.getElementById('submit-status').textContent = msg;
+    }
+
+    // 輪詢帳本直到符合條件的紀錄出現；找到就回傳該筆，逾時回傳 null。
+    async function waitForRecord(match) {
+      const deadline = Date.now() + CONFIRM_TIMEOUT_MS;
+      while (Date.now() < deadline) {
+        await new Promise(r => setTimeout(r, CONFIRM_INTERVAL_MS));
+        try {
+          const res = await fetch('./data/ledger.json?t=' + Date.now());
+          if (!res.ok) continue;
+          const data = await res.json();
+          const hit = Array.isArray(data) && data.find(match);
+          if (hit) {
+            globalLedgerData = data;
+            renderLedger(data);
+            return hit;
+          }
+        } catch (err) { /* 暫時讀不到，下一輪再試 */ }
+      }
+      return null;
+    }
 
     let lastFocusedBeforeToast = null;
 
@@ -520,9 +605,11 @@
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
 
-    function showToast() {
+    // confirmed 為 false 時，表示已收下但尚未在帳本上看見，等 confirmToast 再改成「已存入」。
+    function showToast(confirmed) {
       const modal = document.getElementById('toast-modal');
       const poemBox = document.getElementById('toast-blessing');
+      setToastText(confirmed);
       const randomPoem = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
       poemBox.innerText = randomPoem;
 
@@ -532,6 +619,23 @@
       document.addEventListener('keydown', trapToastKeys);
       const closeBtn = modal.querySelector('.btn-toast-close');
       if (closeBtn) closeBtn.focus();
+    }
+
+    function setToastText(confirmed) {
+      document.getElementById('toast-title').textContent = confirmed ? '微光已存入帳本' : '微光已收下';
+      document.getElementById('toast-subtitle').textContent = confirmed
+        ? 'Your moment is now permanently recorded.'
+        : '正在寫入帳本，約需一兩分鐘 / Recording into the ledger...';
+    }
+
+    // 紀錄已出現在帳本上：更新彈窗文字，並標出那張卡片。
+    function confirmToast(id) {
+      setToastText(true);
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('highlight'));
+        card.classList.add('highlight');
+      }
     }
 
     function closeToast() {

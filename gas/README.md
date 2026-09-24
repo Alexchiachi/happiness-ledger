@@ -66,6 +66,6 @@ Token 存放於 GAS 的**指令碼屬性**：
 | `401` | Authorization 用了 `'token '` 而不是 `'Bearer '`，或 token 貼錯／含多餘空白 |
 | `403` | 權限不足，或撞到 GitHub 建立內容的速率限制 |
 | `404` | 產生 token 時沒有選到 `happiness-ledger` |
-| 網頁顯示成功但帳本沒有紀錄 | 前端目前使用 `mode: 'no-cors'`，讀不到回應，所以一律顯示成功。到 GAS 左側「⏱ 執行項目」查看實際錯誤 |
+| 網頁顯示「無法確認是否送達」 | 前端讀不到 GAS 的回應（網路不通或跨網域轉址失敗）。到 GAS 左側「⏱ 執行項目」查看實際情況 |
 
-最後那一項是目前已知的缺口：**故障時訪客仍會看到「已永久記錄」**。修法是拿掉 `no-cors`，改為輪詢 `data/ledger.json` 來確認紀錄是否真的入帳。
+> 這個中繼正逐步由 `worker/`（Cloudflare Worker）取代，見 `worker/README.md`。

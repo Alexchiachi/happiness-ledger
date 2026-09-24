@@ -21,9 +21,10 @@
 
 ```
 訪客填表（index.html，GitHub Pages）
-    │  POST（mode: 'no-cors'）
+    │  POST（text/plain，讀得到回應）
     ▼
-Google Apps Script（gas/Code.gs，持 fine-grained token）
+中繼：Google Apps Script（gas/Code.gs）
+      或 Cloudflare Worker（worker/，遷移中），皆持 fine-grained token
     │  代為呼叫 GitHub API 建立 Issue
     ▼
 GitHub Issue（標籤 happiness-record）
@@ -38,7 +39,8 @@ data/records/*.md（逐筆封存）＋ data/ledger.json（聚合）
 GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 ```
 
-**訪客不需要 GitHub 帳號，因為 GAS 持有憑證。** 這是「免登入」承諾的實作方式。
+**訪客不需要 GitHub 帳號，因為中繼持有憑證。**
+前端用哪一個中繼，由 `index.html` 的 `RELAY_ENDPOINT` 決定。 這是「免登入」承諾的實作方式。
 
 ---
 
@@ -49,6 +51,7 @@ GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 | `index.html` | 整個前端。單一檔案，無框架、無建置流程 |
 | `gas/Code.gs` | GAS 中繼的原始碼**副本**。實際執行的在 Google，**不會自動同步** |
 | `gas/README.md` | 部署步驟、token 權限、錯誤碼對照 |
+| `worker/` | Cloudflare Worker 中繼（GAS 的替代品），綁 `ledger-api.daoissimple.com`。部署見 `worker/README.md` |
 | `.github/workflows/record-to-ledger.yml` | Issue → 帳本的自動化 |
 | `.github/scripts/update-ledger.js` | 解析與寫入的實際邏輯 |
 | `.github/ISSUE_TEMPLATE/` | 中英文存入表單 |
@@ -134,6 +137,12 @@ fine-grained token 必須用 **`Bearer`**。用舊寫法會拿到 401，而
 
 **目前頁面載入時的外部請求數為 0，請維持這個狀態。**
 
+### ❌ 不要讓 Worker 存資料、也不要改用 `workers.dev` 或 `pages.dev`
+
+Worker 只負責開 Issue。加上 D1 / KV 會讓帳本出現第二個寫入者。
+`workers.dev`、`pages.dev` 在大陸常被封鎖；前端留在 GitHub Pages，中繼用自訂網域。
+也不要加 Turnstile —— 它會引入外部請求。
+
 ### ❌ 不要直接改寫 `data/ledger.json`
 
 帳本維持**單一寫入者**：只有 workflow 會寫。遷移也走 Issue（見 `tools/import-records.js`），
@@ -148,23 +157,22 @@ fine-grained token 必須用 **`Bearer`**。用舊寫法會拿到 401，而
 
 ## 已知的缺口（尚未修，不是疏漏）
 
-### 前端看不見失敗
+### 送出狀態（已修，留作脈絡）
 
-`index.html` 用 `mode: 'no-cors'` 送出，拿到的是 opaque response：
-狀態碼恆為 0、body 讀不到，**不論 GAS 回什麼都會 resolve**。
-於是程式碼無條件顯示「已永久記錄」。
+過去用 `mode: 'no-cors'` 盲送，不論中繼回什麼都顯示「已永久記錄」。
+現在的行為：
 
-雪上加霜的是 `setTimeout(loadLedger, 5000)`：workflow 本身就要 12～16 秒，
-後面還有 Pages 重建 —— **5 秒後重載必定看不到自己那筆**。
+- 讀得到 `{ ok: true }` → 清空表單，輪詢 `./data/ledger.json` 直到那一筆出現才說「已存入」
+- 讀得到 `{ ok: false }` → 顯示原因，**保留表單文字**
+- 讀不到回應 → 不清空、**不重送**（請求可能已到，重送會重複），改以稱呼＋內容在帳本中尋找
 
-**修法**（已設計未實作）：拿掉 `no-cors`（`text/plain` 本身就避開 preflight，
-`no-cors` 是多餘的），改為輪詢 `./data/ledger.json` 直到自己那筆出現。
-注意 CORS 若不通不可重試 POST —— 請求已送出，重試會產生重複紀錄。
+改動送出流程時，這三條都要維持。
 
 ### 中國大陸無法送出
 
 `script.google.com` 在大陸不通，`fonts.googleapis.com` 亦然（字型已移除）。
 `alexchiachi.github.io` 實測可開。解法見 `docs/CN_LEDGER_SPEC.md`。
+改用自訂網域上的 Worker 後**可能**可以送出，但尚未實測，大陸版計畫照常進行。
 
 ### 其他
 
@@ -212,6 +220,12 @@ Playwright 已可用（Chromium 在 `/opt/pw-browsers/chromium`）。實測時**
 | :--- | ---: |
 | `--text-muted` `#776c5f` / 頁面底 | 4.64:1 |
 | `--accent-on-light` `#7f6249` / 膠囊底 | 4.82:1 |
+
+### Worker
+
+```bash
+node worker/test.mjs                 # 以假 fetch 檢查驗證、蜜罐、節流、CORS
+```
 
 ### GAS
 
