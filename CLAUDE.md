@@ -54,6 +54,8 @@ GitHub Pages 重建 → 首頁卡片牆 fetch ./data/ledger.json
 | `.github/ISSUE_TEMPLATE/` | 中英文存入表單 |
 | `data/ledger.json` | 卡片牆的資料來源 |
 | `data/records/*.md` | 逐筆封存 |
+| `fonts/` | 自架的 Noto Serif TC 與 Cormorant Garamond 子集 |
+| `tools/subset_fonts.py` | 產生上述子集。改了文案後重跑 |
 | `tools/import-records.js` | 從外部帳本遷移紀錄 |
 | `docs/CN_LEDGER_SPEC.md` | 大陸版建置規格與資料契約 |
 | `docs/LEDGER_PROTOCOL.md` | 兩本帳本之間的協定：角色、交接流程、交握訊息 |
@@ -127,12 +129,21 @@ GitHub 在同一群組中**只保留最新一個排隊的 run，較早排隊者�
 fine-grained token 必須用 **`Bearer`**。用舊寫法會拿到 401，而
 `muteHttpExceptions` 會吞掉它、`no-cors` 再遮一層 —— 你會看到「已存入」但什麼都沒發生。
 
-### ❌ 不要引入網頁字型
+### ❌ 不要從第三方 CDN 載字型
 
-`index.html` 刻意不使用 Google Fonts。字型 `<link>` 是**阻擋渲染**的請求，
-在連不到的網路環境（例如中國大陸）會讓頁面長時間空白。CJK 網頁字型也動輒數 MB。
+字型 `<link>` 是**阻擋渲染**的請求。`fonts.googleapis.com` 在中國大陸連不上，
+連不到時瀏覽器會等到逾時，頁面長時間空白。
 
-**目前頁面載入時的外部請求數為 0，請維持這個狀態。**
+**但自架子集可以，而且現在就是這樣做的。** `fonts/` 下是 Noto Serif TC 與
+Cormorant Garamond 的子集，由 `tools/subset_fonts.py` 產生，同源載入。
+
+那支腳本用無頭瀏覽器走過每個文字節點、讀出它**實際套用的字重**再分組取子集。
+別把它簡化成「對每個字重送同一份字集」—— 那會從 232 KB 變成 488 KB。
+
+改了 `index.html` 的文案後重跑 `python3 tools/subset_fonts.py`。紀錄增加不必
+每次重跑；子集裡沒有的字會用系統明體補上。
+
+**頁面載入時的外部請求數必須維持 0。** 字型是同源的，不算外部請求。
 
 ### ❌ 不要直接改寫 `data/ledger.json`
 
@@ -163,7 +174,7 @@ fine-grained token 必須用 **`Bearer`**。用舊寫法會拿到 401，而
 
 ### 中國大陸無法送出
 
-`script.google.com` 在大陸不通，`fonts.googleapis.com` 亦然（字型已移除）。
+`script.google.com` 在大陸不通。字型已改為自架子集，不再依賴 `fonts.googleapis.com`。
 `alexchiachi.github.io` 實測可開。解法見 `docs/CN_LEDGER_SPEC.md`。
 
 ### 其他
@@ -206,12 +217,18 @@ Playwright 已可用（Chromium 在 `/opt/pw-browsers/chromium`）。實測時**
 
 ### 對比度
 
-修改色彩後請重算 WCAG 對比。現況（皆通過 AA）：
+色票沿用 `Alexchiachi/happy` 的 `DESIGN.md`。**新增顏色前先算對比**，
+文字對 `paper` 至少 4.5:1。現況（皆通過 AA）：
 
 | 用途 | 比值 |
 | :--- | ---: |
-| `--text-muted` `#776c5f` / 頁面底 | 4.64:1 |
-| `--accent-on-light` `#7f6249` / 膠囊底 | 4.82:1 |
+| `--ink` `#2A2520` / 卡片底 | 14.93:1 |
+| `--ink-soft` `#4A423A` / 卡片底 | 9.69:1 |
+| `--mist` `#736C63` / 紙底 | 4.81:1 |
+| `--tea` `#82663F` / 紙底 | 4.97:1 |
+| `--tea` `#82663F` / 第二層紙 | 4.52:1 |
+
+`mist` 已經在對比底線上，**不要再調淡**。
 
 ### GAS
 
@@ -219,6 +236,26 @@ Playwright 已可用（Chromium 在 `/opt/pw-browsers/chromium`）。實測時**
 編輯器裡執行 `testToken` 可確認 token 有效（看到 `回應碼：200`）。
 
 ---
+
+## 視覺標準
+
+本頁遵循 `Alexchiachi/happy` 的 [`DESIGN.md`](https://github.com/Alexchiachi/happy/blob/main/DESIGN.md)
+—— 大道至簡的品牌視覺規範。**改動樣式前先讀它。**
+
+採用的是它的**色票與紀律**，不是版型。`DESIGN.md` 的 scope 寫明
+「`shop/`、`anning/` 共用同一組色票，版型各自獨立」；記帳本走同一條路。
+它是一件行為藝術，不該長得像商品頁。
+
+幾條最容易被違反的：
+
+- **一律直角**。沒有圓角、沒有陰影。層次靠 1px 的 `line` 細線、
+  `paper` 與 `paper-deep` 兩層紙色，以及留白
+- **越大越細**。標題 weight 200–300，**從不用 600 以上當標題**
+- **中文字距放開**。標題 0.05–0.15em，按鈕 0.15–0.25em，eyebrow 0.4em
+- **只有一個強調色**。所有可點的東西都用 `tea`
+- **朱印是唯一的紅**。`seal` 只用在印章與錯誤訊息，不拿來當按鈕或連結
+- **實心按鈕只有一顆**，就是表單送出，而且是墨底紙字
+- **英文是低語，不是翻譯**。獨立一行、Cormorant 義大利體、`mist` 色
 
 ## 這件作品的語言
 
