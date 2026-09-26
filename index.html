@@ -31,10 +31,6 @@
       /* 字型自架於 fonts/（由 tools/subset_fonts.py 產生），不經第三方 CDN。
          fonts.googleapis.com 在中國大陸連不上，而字型 <link> 會阻擋渲染。
          子集裡沒有的字（例如新存入的紀錄）會用系統明體補上。 */
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-                   "PingFang TC", "PingFang SC", "Hiragino Sans GB",
-                   "Microsoft JhengHei", "Microsoft YaHei",
-                   "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
       --font-serif: "Noto Serif TC", "Songti TC", "Songti SC", "STSong",
                     "Source Han Serif TC", "Noto Serif CJK TC",
                     "MS Mincho", "SimSun", "PMingLiU",
@@ -77,7 +73,7 @@
       background: var(--paper);
       color: var(--ink);
       min-height: 100vh;
-      padding: 3rem 1.25rem;
+      padding: 7rem 1.25rem 3rem;
       font-size: 17px;      /* 標準明訂 17px：閱讀速度，不是掃描速度 */
       line-height: 1.85;
     }
@@ -402,20 +398,143 @@
     }
     .btn-toast-close:active { transform: scale(0.97); }
 
+    /* 導覽列：一開始透明，捲動後半透明紙色 + 毛玻璃 + 底線 */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem;
+      padding: 1.1rem clamp(1.25rem, 5vw, 3rem);
+      border-bottom: 1px solid transparent;
+      transition: background var(--dur-chrome) var(--ease),
+                  padding var(--dur-chrome) var(--ease),
+                  border-color var(--dur-chrome) var(--ease);
+    }
+    .nav.scrolled {
+      background: rgba(250, 246, 239, 0.86);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom-color: var(--line);
+      padding-top: 0.7rem; padding-bottom: 0.7rem;
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .nav.scrolled { background: var(--paper); backdrop-filter: none; }
+    }
+    .nav-brand {
+      font-family: var(--font-han); font-size: 1rem; font-weight: 400;
+      letter-spacing: 0.12em; color: var(--ink); text-decoration: none;
+    }
+    .nav-brand small {
+      display: block; font-family: var(--font-display);
+      font-size: 0.62rem; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--tea); margin-top: 0.15rem;
+    }
+    .nav-menu { list-style: none; display: flex; gap: 1.5rem; }
+    .nav-menu a {
+      font-family: var(--font-han); font-size: 0.86rem;
+      letter-spacing: 0.12em; color: var(--ink-soft); text-decoration: none;
+      padding: 0.4rem 0; position: relative;
+      min-height: 44px; display: inline-flex; align-items: center;
+    }
+    .nav-menu a::after {
+      content: ''; position: absolute; left: 0; right: 100%; bottom: 0.2rem;
+      height: 1px; background: var(--tea);
+      transition: right var(--dur-chrome) var(--ease);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .nav-menu a:hover { color: var(--tea); }
+      .nav-menu a:hover::after { right: 0; }
+    }
+
+    /* 引言：置中，上下各一條 60px 的 tea 短線。一頁最多一段。 */
+    .pull-quote { margin: 2rem 0 1.5rem; }
+    .pull-quote::before, .pull-quote::after {
+      content: ''; display: block; width: 60px; height: 1px;
+      background: var(--tea); margin: 0 auto;
+    }
+    .pull-quote::before { margin-bottom: 1.6rem; }
+    .pull-quote::after { margin-top: 1.6rem; }
+    .pull-quote q {
+      display: block; quotes: none;
+      font-family: var(--font-han);
+      font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+      font-weight: 300; letter-spacing: 0.1em; line-height: 1.9;
+      color: var(--ink); text-wrap: balance;
+    }
+
+    /* 下一步：讀到頁底的出口。語氣是邀請，不是推銷。 */
+    .next-step {
+      margin-top: 8rem; padding-top: 3rem;
+      border-top: 1px solid var(--line); text-align: center;
+    }
+    .eyebrow {
+      font-family: var(--font-display); font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.4em; margin-right: -0.4em; text-transform: uppercase;
+      color: var(--tea); margin-bottom: 1.2rem;
+    }
+    .next-step p { color: var(--ink-soft); }
+    .next-en {
+      font-family: var(--font-display); font-style: italic;
+      color: var(--mist); margin-top: 0.3rem;
+    }
+    .next-actions {
+      display: flex; flex-wrap: wrap; gap: 0.9rem;
+      justify-content: center; margin-top: 2rem;
+    }
+    .svc-cta {
+      border: 1px solid var(--tea); color: var(--tea);
+      font-family: var(--font-han); font-size: 0.9rem;
+      letter-spacing: 0.25em; text-indent: 0.25em;
+      padding: 12px 28px; text-decoration: none;
+      transition: background var(--dur-ui) var(--ease),
+                  color var(--dur-ui) var(--ease),
+                  transform var(--dur-ui) var(--ease);
+    }
+    .svc-cta.quiet { border-color: var(--line); color: var(--mist); }
+    @media (hover: hover) and (pointer: fine) {
+      .svc-cta:hover { background: var(--tea); color: var(--paper); }
+      .svc-cta.quiet:hover { background: transparent; color: var(--tea); border-color: var(--tea); }
+    }
+    .svc-cta:active { transform: scale(0.97); }
+
+    /* 朱印：每頁的最後一個區塊。兩行各兩字。 */
+    .seal {
+      width: 88px; height: 88px; margin: 5rem auto 0;
+      border: 2px solid var(--seal); background: rgba(168, 84, 58, 0.04);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: var(--font-han); font-weight: 500;
+      font-size: 1.05rem; letter-spacing: 0.15em; text-indent: 0.15em;
+      color: var(--seal); line-height: 1.5;
+    }
+    .seal-en {
+      text-align: center; margin-top: 0.9rem;
+      font-family: var(--font-display); font-style: italic;
+      font-size: 0.85rem; color: var(--mist); letter-spacing: 0.05em;
+    }
+
     footer { text-align: center; margin-top: 4rem; font-size: 0.8rem; color: var(--mist); }
     footer a { color: var(--tea); text-decoration: none; }
   </style>
 </head>
 <body>
 
+  <nav class="nav">
+    <a class="nav-brand" href="https://alexchiachi.github.io/happy/">大道至簡<small lang="en">Dao is simple</small></a>
+    <ul class="nav-menu">
+      <li><a href="https://alexchiachi.github.io/happy/journal.html">幸福誌</a></li>
+      <li><a href="https://alexchiachi.github.io/happy/about.html">關於</a></li>
+    </ul>
+  </nav>
+
   <div class="container">
     <header>
       <div class="brand-mark">🌸</div>
       <h1>幸福影響力記帳本</h1>
       <div class="sub-en-title" lang="en">The Happiness Ledger</div>
-      <div class="quote-box">
-        每一份對生活的微小覺察與善意，都值得被恆久銘記。
+      <div class="pull-quote">
+        <q>每一份對生活的微小覺察與善意，都值得被恆久銘記。</q>
         <span class="quote-en" lang="en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
+      </div>
+      <div class="quote-box">
         <span class="quote-zh">免登入 · 隨時存入當下的感知與微光</span>
         <span class="quote-en" lang="en">No login required · deposit your moment anytime</span>
       </div>
@@ -468,6 +587,21 @@
       </div>
     </main>
 
+    <section class="next-step">
+      <div class="eyebrow" lang="en">Next · 下一步</div>
+      <p>看完別人的微光，也許你會想起自己的。</p>
+      <p class="next-en" lang="en">Having read theirs, you may remember your own.</p>
+      <div class="next-actions">
+        <a class="svc-cta" href="#happiness-form">存入一筆 →</a>
+        <a class="svc-cta quiet" href="https://alexchiachi.github.io/happy/journal.html">讀幸福誌 →</a>
+      </div>
+    </section>
+
+    <div class="seal" aria-hidden="true">
+      <span>幸福</span><span>記帳</span>
+    </div>
+    <p class="seal-en" lang="en">The Happiness Ledger</p>
+
     <footer>
       <p>大道至簡 · 一人公司開源數位行為藝術</p>
       <p lang="en" style="font-size: 0.75rem; color: var(--mist);">Dao Is Simple: Open-Source Behavioral Art for Solopreneurs</p>
@@ -479,7 +613,7 @@
        aria-labelledby="toast-title" aria-hidden="true">
     <div class="toast-card">
       <div style="font-size: 2rem;" aria-hidden="true">🕊️</div>
-      <h3 id="toast-title" style="font-family:var(--font-serif); color:var(--ink); margin-top:0.4rem;">微光已存入帳本</h3>
+      <h3 id="toast-title" style="font-family:var(--font-han); font-weight:400; letter-spacing:0.1em; color:var(--ink); margin-top:0.4rem;">微光已存入帳本</h3>
       <p lang="en" style="font-size:0.8rem; color:var(--mist);">Your moment is now permanently recorded.</p>
       
       <div class="toast-poem" id="toast-blessing">
@@ -687,6 +821,12 @@
         tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
       );
     }
+
+    // 捲動後導覽列轉為半透明紙色 + 毛玻璃
+    const navEl = document.querySelector('.nav');
+    const onScroll = () => navEl.classList.toggle('scrolled', window.scrollY > 24);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
     loadLedger();
   </script>
