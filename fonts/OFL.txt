@@ -1,0 +1,9 @@
+Noto Serif TC 與 Cormorant Garamond 皆採用 SIL Open Font License 1.1，
+允許子集化與自行託管。完整授權條款：
+  https://openfontlicense.org/open-font-license-official-text/
+
+Copyright 2014-2021 Google LLC. (Noto Serif TC)
+Copyright 2015 The Cormorant Project Authors. (Cormorant Garamond)
+
+此目錄下的 .woff2 由 tools/subset_fonts.py 自 Google Fonts 取得子集後
+存放，僅含本頁面實際使用的字元。

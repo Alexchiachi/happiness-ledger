@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#f7f3ed">
   <link rel="canonical" href="https://alexchiachi.github.io/happiness-ledger/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="fonts/fonts.css">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="幸福影響力記帳本">
@@ -27,20 +28,19 @@
   <meta name="twitter:image" content="https://alexchiachi.github.io/happiness-ledger/og-image.png">
   <style>
     :root {
-      /* 不使用網頁字型：CJK 網頁字型動輒數 MB，且 Google Fonts 在部分地區
-         連不上時會阻擋渲染，讓頁面長時間空白。改用各系統內建的字型。 */
+      /* 字型自架於 fonts/（由 tools/subset_fonts.py 產生），不經第三方 CDN。
+         fonts.googleapis.com 在中國大陸連不上，而字型 <link> 會阻擋渲染。
+         子集裡沒有的字（例如新存入的紀錄）會用系統明體補上。 */
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
                    "PingFang TC", "PingFang SC", "Hiragino Sans GB",
                    "Microsoft JhengHei", "Microsoft YaHei",
                    "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
-      --font-serif: "Songti TC", "Songti SC", "STSong",
+      --font-serif: "Noto Serif TC", "Songti TC", "Songti SC", "STSong",
                     "Source Han Serif TC", "Noto Serif CJK TC",
                     "MS Mincho", "SimSun", "PMingLiU",
                     Georgia, "Times New Roman", serif;
-      /* 中文標題、按鈕、標籤；英文副標與數字。
-         第二項會換成自架的 Noto Serif TC 與 Cormorant Garamond。 */
-      --font-han: var(--font-serif);
-      --font-display: var(--font-serif);
+      --font-han: var(--font-serif);                        /* 中文標題、按鈕、標籤 */
+      --font-display: "Cormorant Garamond", var(--font-serif);  /* 英文副標、數字 */
       /* 大道至簡色票（DESIGN.md）。紙與墨：沒有純白、沒有純黑。
          對比皆通過 WCAG AA：ink 14.93:1、mist 4.81:1、tea 4.97:1。 */
       --paper: #FAF6EF;        /* 主畫布，米白紙 */
@@ -73,7 +73,7 @@
     }
 
     body {
-      font-family: var(--font-sans);
+      font-family: var(--font-serif);
       background: var(--paper);
       color: var(--ink);
       min-height: 100vh;
@@ -97,18 +97,24 @@
     }
 
     h1 {
-      font-family: var(--font-serif);
-      font-size: 2rem;
-      font-weight: 600;
-      color: var(--tea);
-      letter-spacing: 0.04em;
+      font-family: var(--font-han);
+      font-size: clamp(2rem, 7vw, 2.8rem);
+      font-weight: 300;        /* 越大越細：標題從不用粗體 */
+      color: var(--ink);       /* 標題用墨色，強調色留給可點的東西 */
+      letter-spacing: 0.12em;  /* 中文標題字距放開，這是「慢」在字上的樣子 */
+      text-indent: 0.12em;
+      text-wrap: balance;
     }
 
+    /* eyebrow：置中時要補負 margin，抵銷最後一個字後面多出的字距 */
     .sub-en-title {
-      font-size: 0.95rem;
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
-      color: var(--mist);
+      letter-spacing: 0.4em;
+      margin-right: -0.4em;
+      color: var(--tea);
       margin-bottom: 1rem;
     }
 
@@ -120,10 +126,12 @@
 
     .quote-en {
       display: block;
-      font-size: 0.85rem;
+      font-family: var(--font-display);
+      font-size: 1rem;
       color: var(--mist);
       margin-top: 0.35rem;
       font-style: italic;
+      letter-spacing: 0.05em;
     }
 
     .form-container {
@@ -145,17 +153,22 @@
 
     label {
       display: block;
+      font-family: var(--font-han);
       font-size: 0.88rem;
-      font-weight: 600;
+      font-weight: 500;
+      letter-spacing: 0.1em;
       color: var(--ink);
       margin-bottom: 0.4rem;
     }
 
     .label-en {
-      font-size: 0.78rem;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-style: italic;
       color: var(--mist);
       font-weight: 400;
       margin-left: 0.3rem;
+      letter-spacing: 0.03em;
     }
 
     input, select, textarea {
@@ -273,7 +286,10 @@
       /* 自訂類別可能很長，允許換行而不是撐破卡片 */
       flex-wrap: wrap; gap: 0.5rem;
     }
-    .card-author { font-weight: 600; overflow-wrap: anywhere; }
+    .card-author {
+      font-family: var(--font-han); font-weight: 500;
+      letter-spacing: 0.08em; overflow-wrap: anywhere;
+    }
     .card-category {
       background: var(--paper-deep); color: var(--tea);
       padding: 0.25rem 0.7rem; font-size: 0.78rem;
