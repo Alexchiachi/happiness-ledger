@@ -124,6 +124,12 @@
       line-height: 1.6;
     }
 
+    .quote-zh {
+      display: block;
+      margin-top: 0.9rem;
+      color: var(--ink-soft);
+    }
+
     .quote-en {
       display: block;
       font-family: var(--font-display);
@@ -161,14 +167,17 @@
       margin-bottom: 0.4rem;
     }
 
+    /* 英文副標一律獨立一行、義大利體。是低語，不是翻譯。
+       混在同一行會讓中文被套上合成斜體，也是先前手機截斷的主因。 */
     .label-en {
+      display: block;
       font-family: var(--font-display);
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-style: italic;
-      color: var(--mist);
       font-weight: 400;
-      margin-left: 0.3rem;
+      color: var(--mist);
       letter-spacing: 0.03em;
+      margin-top: 0.1rem;
     }
 
     input, select, textarea {
@@ -244,6 +253,19 @@
       .toolbar { flex-direction: column; align-items: stretch; gap: 0.75rem; }
       .divider-text { text-align: center; }
       .btn-random { justify-content: center; }
+    }
+
+    /* 按鈕內的中英兩行 */
+    .btn-zh { display: block; }
+    .btn-en {
+      display: block;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 0.82em;
+      letter-spacing: 0.04em;
+      text-indent: 0;
+      opacity: 0.75;
+      margin-top: 0.15rem;
     }
 
     /* 次要按鈕：line 框、mist 字。hover 只把字與框轉 tea，不填滿。 */
@@ -394,7 +416,8 @@
       <div class="quote-box">
         每一份對生活的微小覺察與善意，都值得被恆久銘記。
         <span class="quote-en" lang="en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
-        <span class="quote-en" style="margin-top:0.25rem;">免登入 · 隨時存入當下的感知與微光 / No login required · Deposit your moment anytime</span>
+        <span class="quote-zh">免登入 · 隨時存入當下的感知與微光</span>
+        <span class="quote-en" lang="en">No login required · deposit your moment anytime</span>
       </div>
     </header>
 
@@ -403,18 +426,18 @@
         <input type="text" id="hp_url" name="hp_url" class="hp-field" tabindex="-1" autocomplete="off">
 
         <div class="form-group">
-          <label for="nickname">您的稱呼 <span class="label-en" lang="en">/ Your Moniker</span></label>
+          <label for="nickname">您的稱呼<span class="label-en" lang="en">Your moniker</span></label>
           <input type="text" id="nickname" required placeholder="例如：南投旅人、漫步者">
         </div>
         
         <div class="form-group">
-          <label for="category">幸福微類型 <span class="label-en" lang="en">/ Micro-Category</span></label>
+          <label for="category">幸福微類型<span class="label-en" lang="en">Micro-category</span></label>
           <select id="category" required onchange="handleCategoryChange(this)">
-            <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察（飲食、氣味、光影） / Sensory Awareness (Taste, Aroma, Light)</option>
-            <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意（給予、傾聽、微笑） / Subtle Kindness (Giving, Listening, Smiling)</option>
-            <option value="🍃 自然連結 / Nature Connection">🍃 自然連結（草木、泥土、晨昏） / Nature Connection (Plants, Soil, Twilight)</option>
-            <option value="🧘 身心安頓 / Inner Peace">🧘 身心安頓（閱讀、冥想、停頓） / Inner Peace (Reading, Meditation, Pausing)</option>
-            <option value="custom">✨ 其他幸福小事 / Other (自訂填入 / Custom)</option>
+            <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察（飲食、氣味、光影）</option>
+            <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意（給予、傾聽、微笑）</option>
+            <option value="🍃 自然連結 / Nature Connection">🍃 自然連結（草木、泥土、晨昏）</option>
+            <option value="🧘 身心安頓 / Inner Peace">🧘 身心安頓（閱讀、冥想、停頓）</option>
+            <option value="custom">✨ 其他幸福小事（自訂填入）</option>
           </select>
           
           <!-- 選取「其他」時展開的輸入框 -->
@@ -424,17 +447,17 @@
         </div>
 
         <div class="form-group">
-          <label for="content">幸福感知內容 <span class="label-en" lang="en">/ Moment of Awareness</span></label>
+          <label for="content">幸福感知內容<span class="label-en" lang="en">Moment of awareness</span></label>
           <textarea id="content" rows="5" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意...&#10;Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..."></textarea>
         </div>
 
-        <button type="submit" id="submit-btn" class="btn-submit">✨ 存入這份幸福 / Deposit This Moment</button>
+        <button type="submit" id="submit-btn" class="btn-submit"><span class="btn-zh">存入這份幸福</span><span class="btn-en" lang="en">Deposit this moment</span></button>
       </form>
     </section>
 
     <div class="toolbar">
       <div class="divider-text"><span lang="en">MOMENTS OF LIGHT</span> • 幸福流動</div>
-      <button class="btn-random" onclick="pickRandomMoment()">🎲 遇見一份微光 / Random</button>
+      <button class="btn-random" onclick="pickRandomMoment()"><span class="btn-zh">遇見一份微光</span><span class="btn-en" lang="en">Random</span></button>
     </div>
 
     <main class="ledger-stream" id="ledger">
@@ -463,7 +486,7 @@
         「慢下來，感知每一縷微風，生活原本就很美。」
       </div>
 
-      <button class="btn-toast-close" onclick="closeToast()">安住此心 / Peace</button>
+      <button class="btn-toast-close" onclick="closeToast()"><span class="btn-zh">安住此心</span><span class="btn-en" lang="en">Peace</span></button>
     </div>
   </div>
 
@@ -478,6 +501,13 @@
       "「每一杯茶的溫度、每一片落葉，都在安頓我們的靈魂。」",
       "「大道至簡，幸福一直在當下的呼吸裡。」"
     ];
+
+    function setButtonLabel(btn, zh, en) {
+      const zhEl = btn.querySelector('.btn-zh');
+      const enEl = btn.querySelector('.btn-en');
+      if (zhEl) zhEl.textContent = zh;
+      if (enEl) enEl.textContent = en;
+    }
 
     function handleCategoryChange(select) {
       const customBox = document.getElementById('custom-cat-box');
@@ -516,7 +546,8 @@
       if (!nickname || !content) return;
 
       btn.disabled = true;
-      btn.innerText = '🕊️ 正在存入帳本中... / Depositing...';
+      // 只換中文那一行，保留按鈕內的中英兩行結構
+      setButtonLabel(btn, '正在存入帳本中…', 'Depositing…');
 
       try {
         await fetch(GAS_ENDPOINT, {
@@ -535,7 +566,7 @@
         alert('存入時出現了一點小狀況，請稍後重試。');
       } finally {
         btn.disabled = false;
-        btn.innerText = '✨ 存入這份幸福 / Deposit This Moment';
+        setButtonLabel(btn, '存入這份幸福', 'Deposit this moment');
       }
     });
 
@@ -641,7 +672,7 @@
         <div class="state-box">
           <span class="state-icon">🍃</span>
           <p style="font-weight: 500; margin-bottom: 0.4rem; color: var(--ink);">
-            靜候第一份微光存入 <span style="font-size:0.85rem; color:var(--mist); font-weight:400;">/ Waiting for the First Moment</span>
+            靜候第一份微光存入
           </p>
           <p style="font-size: 0.85rem; color: var(--mist); line-height: 1.6;">
             帳本已準備就緒。填寫上方表單，留下第一筆溫暖的生命覺察。<br>
