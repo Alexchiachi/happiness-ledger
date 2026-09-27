@@ -8,7 +8,11 @@
   <meta name="theme-color" content="#f7f3ed">
   <link rel="canonical" href="https://alexchiachi.github.io/happiness-ledger/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="fonts/fonts.css">
+  <!-- 字型等 load 之後才載入。直接用 <link> 的話，字型會在第一次繪製前
+       就被發現，Lighthouse 會把它算進 FCP／LCP。詳見 happy repo 的
+       NEW-PAGE.md 第二、三節（安寧／好物 65/73 → 94/95 的關鍵之一）。 -->
+  <script>addEventListener('load', function () { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'fonts/fonts.css'; document.head.appendChild(l); });</script>
+  <noscript><link rel="stylesheet" href="fonts/fonts.css"></noscript>
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="幸福影響力記帳本">
