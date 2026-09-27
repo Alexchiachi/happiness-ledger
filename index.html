@@ -208,6 +208,16 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* 送出失敗時的說明。朱印色是全站唯一的紅，用在這裡與印章。 */
+    .form-note {
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: var(--seal);
+      border-left: 2px solid var(--seal);
+      padding-left: 0.9rem;
+    }
+
     /* 全站唯一的實心按鈕，只給「送出」：墨底紙字，hover 轉 tea。 */
     .btn-submit {
       width: 100%;
@@ -575,6 +585,7 @@
         </div>
 
         <button type="submit" id="submit-btn" class="btn-submit"><span class="btn-zh">存入這份幸福</span><span class="btn-en" lang="en">Deposit this moment</span></button>
+        <p class="form-note" id="form-note" role="status" aria-live="polite" hidden></p>
       </form>
     </section>
 
@@ -618,7 +629,7 @@
     <div class="toast-card">
       <div style="font-size: 2rem;" aria-hidden="true">🕊️</div>
       <h3 id="toast-title" style="font-family:var(--font-han); font-weight:400; letter-spacing:0.1em; color:var(--ink); margin-top:0.4rem;">微光已存入帳本</h3>
-      <p lang="en" style="font-size:0.8rem; color:var(--mist);">Your moment is now permanently recorded.</p>
+      <p id="toast-sub" lang="en" style="font-size:0.8rem; color:var(--mist);">Your moment is now permanently recorded.</p>
       
       <div class="toast-poem" id="toast-blessing">
         「慢下來，感知每一縷微風，生活原本就很美。」
@@ -629,7 +640,11 @@
   </div>
 
   <script>
-    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzl-bRgCui8qXSah34KEEU7ZNWqcowHuOKtjXJ21UNe6TQZ3JOJy1BAindkrQd1Jc0u/exec';
+    // 存入的中繼。原本是 Google Apps Script：它的 /exec 會 302 轉址，前端被迫用
+    // mode:'no-cors'，拿到的是 opaque response —— 讀不到結果，於是不論成功失敗
+    // 都顯示「已永久記錄」。Worker 有乾淨的 CORS，所以現在讀得到真實結果。
+    // 另外 script.google.com 在中國大陸連不上。
+    const API_ENDPOINT = 'https://executive-table.jianchiachi.workers.dev/api/happiness';
     let globalLedgerData = [];
 
     const BLESSINGS = [
@@ -639,6 +654,46 @@
       "「每一杯茶的溫度、每一片落葉，都在安頓我們的靈魂。」",
       "「大道至簡，幸福一直在當下的呼吸裡。」"
     ];
+
+    // 每一種失敗都說清楚是什麼，而不是籠統的「出了一點小狀況」
+    function errorMessage(code, data) {
+      if (code === 'too_short') return `再多寫幾個字吧，至少 ${data.min || 10} 個字。`;
+      if (code === 'invalid') return '稱呼與內容都要填喔。';
+      if (code === 'rate_limited') return '剛剛已經存入好幾筆了。<br>稍等片刻再來，給心靈留一點停頓的時間。';
+      if (code === 'github_unavailable') return '帳本暫時無法寫入，<strong>你的文字已經安全收下</strong>，稍後會補上。';
+      if (code === 'too_large') return '內容太長了，精簡一些再試。';
+      return '存入時遇到狀況。你寫的文字還在上面，稍後再按一次即可。';
+    }
+
+    function showFormNote(html) {
+      const note = document.getElementById('form-note');
+      note.innerHTML = html;
+      note.hidden = false;
+    }
+    function clearFormNote() {
+      const note = document.getElementById('form-note');
+      note.hidden = true;
+      note.innerHTML = '';
+    }
+
+    // 輪詢帳本，直到自己那筆真的出現。Worker 回 ok 就代表紀錄已經成為一則
+    // Issue、不會遺失；卡片牆落後的是顯示，不是承諾。
+    async function waitForRecord(number, deadlineMs = 150000) {
+      if (!number) { setTimeout(loadLedger, 20000); return; }
+      const until = Date.now() + deadlineMs;
+      while (Date.now() < until) {
+        await new Promise(r => setTimeout(r, 6000));
+        await loadLedger();
+        if (globalLedgerData.some(item => item.id === number)) {
+          const card = document.getElementById(`card-${number}`);
+          if (card) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('highlight'));
+            card.classList.add('highlight');
+          }
+          return;
+        }
+      }
+    }
 
     function setButtonLabel(btn, zh, en) {
       const zhEl = btn.querySelector('.btn-zh');
@@ -688,20 +743,35 @@
       setButtonLabel(btn, '正在存入帳本中…', 'Depositing…');
 
       try {
-        await fetch(GAS_ENDPOINT, {
+        const res = await fetch(API_ENDPOINT, {
           method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ nickname, category: finalCategory, content, honeypot })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nickname, category: finalCategory, content, honeypot, source: location.href })
         });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok) {
+          showFormNote(errorMessage(data.code, data));
+          return;   // 表單不清空：使用者寫的字必須留著
+        }
 
         localStorage.setItem('last_happiness_submit', now.toString());
         document.getElementById('happiness-form').reset();
         document.getElementById('custom-cat-box').style.display = 'none';
+        clearFormNote();
+
+        if (data.status === '暫緩') {
+          // 含外部連結，由守護者確認後才刊出。說實話，不要假裝已經上牆。
+          showToast({ held: true });
+          return;
+        }
         showToast();
-        setTimeout(loadLedger, 5000);
+        // 紀錄已經安全地成為一則 Issue；卡片牆要等 workflow（約 12–16 秒）
+        // 與 GitHub Pages 重建才會跟上，所以用輪詢確認，而不是猜一個秒數。
+        waitForRecord(data.number);
       } catch (err) {
-        alert('存入時出現了一點小狀況，請稍後重試。');
+        // 連 Worker 都連不上：網路問題，或所在地區的網路限制
+        showFormNote('連不上存入服務。可能是網路或所在地區的限制。<br>你寫的文字還在上面，沒有遺失，稍後再按一次即可。');
       } finally {
         btn.disabled = false;
         setButtonLabel(btn, '存入這份幸福', 'Deposit this moment');
@@ -723,11 +793,19 @@
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
 
-    function showToast() {
+    function showToast({ held = false } = {}) {
       const modal = document.getElementById('toast-modal');
       const poemBox = document.getElementById('toast-blessing');
       const randomPoem = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
       poemBox.innerText = randomPoem;
+
+      // 含外部連結的紀錄要等人工確認。說實話，不要假裝已經上牆。
+      const title = document.getElementById('toast-title');
+      const sub = document.getElementById('toast-sub');
+      title.textContent = held ? '微光已收下' : '微光已存入帳本';
+      sub.textContent = held
+        ? 'Received — it will appear once a guardian has read it.'
+        : 'Your moment is now permanently recorded.';
 
       lastFocusedBeforeToast = document.activeElement;
       modal.classList.add('active');
