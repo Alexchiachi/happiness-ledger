@@ -525,6 +525,60 @@
       font-size: 0.85rem; color: var(--mist); letter-spacing: 0.05em;
     }
 
+
+    /* ===== 語言切換 =====
+       預設中文為主、英文為副標；html[lang="en"] 時反轉：
+       中文主文隱藏，英文升級為主文。 */
+    .lang-toggle {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-family: var(--font-han);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      padding: 7px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45em;
+      transition: border-color var(--dur-ui) var(--ease);
+    }
+    .lang-toggle:hover { border-color: var(--tea); }
+    .lang-toggle .lang-opt { opacity: 0.42; transition: opacity var(--dur-ui) var(--ease); }
+    .lang-toggle .lang-sep { opacity: 0.3; }
+    html[lang="zh-TW"] .lang-toggle .lang-opt[data-l="zh-TW"],
+    html[lang="en"] .lang-toggle .lang-opt[data-l="en"] {
+      opacity: 1; color: var(--tea); font-weight: 600;
+    }
+
+    /* 中文模式下先藏起只在英文模式出現的 span */
+    .nav-en, .h1-en, .link-en { display: none; }
+
+    /* 英文模式：中文主文隱藏 */
+    html[lang="en"] .nav-zh,
+    html[lang="en"] .h1-zh,
+    html[lang="en"] .label-zh,
+    html[lang="en"] .btn-zh,
+    html[lang="en"] .quote-zh,
+    html[lang="en"] .div-zh,
+    html[lang="en"] .next-zh,
+    html[lang="en"] .link-zh { display: none; }
+    /* 英文模式：與主文重複的英文副標隱藏（h1、引言已有英文主文） */
+    html[lang="en"] .sub-en-title,
+    html[lang="en"] .quote-en,
+    html[lang="en"] .next-en { display: none; }
+    /* 英文模式：英文 span 升級為主文 */
+    html[lang="en"] .nav-en { display: inline; }
+    html[lang="en"] .h1-en { display: block; }
+    html[lang="en"] .link-en { display: inline; }
+    html[lang="en"] .btn-en {
+      font-size: 1em; font-style: normal; letter-spacing: 0.05em;
+    }
+    html[lang="en"] .label-en {
+      font-style: normal; font-size: 1rem; color: var(--ink);
+    }
+    /* eyebrow 在英文模式維持原來的英文小標樣式即可 */
+  
     footer { text-align: center; margin-top: 4rem; font-size: 0.8rem; color: var(--mist); }
     footer a { color: var(--tea); text-decoration: none; }
   </style>
@@ -534,18 +588,19 @@
   <nav class="nav">
     <a class="nav-brand" href="https://alexchiachi.github.io/happy/">大道至簡<small lang="en">Dao is simple</small></a>
     <ul class="nav-menu">
-      <li><a href="https://alexchiachi.github.io/happy/journal.html">幸福誌</a></li>
-      <li><a href="https://alexchiachi.github.io/happy/about.html">關於</a></li>
+      <li><a href="https://alexchiachi.github.io/happy/journal.html"><span class="nav-zh">幸福誌</span><span class="nav-en" lang="en">Journal</span></a></li>
+      <li><a href="https://alexchiachi.github.io/happy/about.html"><span class="nav-zh">關於</span><span class="nav-en" lang="en">About</span></a></li>
+      <li><button type="button" class="lang-toggle" id="lang-toggle" aria-label="切換語言 / Switch language"><span class="lang-opt" data-l="zh-TW">中</span><span class="lang-sep" aria-hidden="true">|</span><span class="lang-opt" data-l="en">EN</span></button></li>
     </ul>
   </nav>
 
   <div class="container">
     <header>
       <div class="brand-mark">🌸</div>
-      <h1>幸福影響力記帳本</h1>
+      <h1><span class="h1-zh">幸福影響力記帳本</span><span class="h1-en" lang="en">The Happiness Ledger</span></h1>
       <div class="sub-en-title" lang="en">The Happiness Ledger</div>
       <div class="pull-quote">
-        <q>每一份對生活的微小覺察與善意，都值得被恆久銘記。</q>
+        <q data-en="Every subtle moment of mindfulness and kindness deserves to be permanently remembered.">每一份對生活的微小覺察與善意，都值得被恆久銘記。</q>
         <span class="quote-en" lang="en">Every subtle moment of mindfulness and kindness deserves to be permanently remembered.</span>
       </div>
       <div class="quote-box">
@@ -559,29 +614,29 @@
         <input type="text" id="hp_url" name="hp_url" class="hp-field" tabindex="-1" autocomplete="off">
 
         <div class="form-group">
-          <label for="nickname">您的稱呼<span class="label-en" lang="en">Your moniker</span></label>
-          <input type="text" id="nickname" required placeholder="例如：南投旅人、漫步者">
+          <label for="nickname"><span class="label-zh">您的稱呼</span><span class="label-en" lang="en">Your moniker</span></label>
+          <input type="text" id="nickname" required placeholder="例如：南投旅人、漫步者" data-en-ph="e.g. Wanderer from Nantou">
         </div>
         
         <div class="form-group">
-          <label for="category">幸福微類型<span class="label-en" lang="en">Micro-category</span></label>
+          <label for="category"><span class="label-zh">幸福微類型</span><span class="label-en" lang="en">Micro-category</span></label>
           <select id="category" required onchange="handleCategoryChange(this)">
-            <option value="☕ 五感覺察 / Sensory Awareness">☕ 五感覺察（飲食、氣味、光影）</option>
-            <option value="🤝 微小善意 / Subtle Kindness">🤝 微小善意（給予、傾聽、微笑）</option>
-            <option value="🍃 自然連結 / Nature Connection">🍃 自然連結（草木、泥土、晨昏）</option>
-            <option value="🧘 身心安頓 / Inner Peace">🧘 身心安頓（閱讀、冥想、停頓）</option>
-            <option value="custom">✨ 其他幸福小事（自訂填入）</option>
+            <option value="☕ 五感覺察 / Sensory Awareness" data-en="☕ Sensory Awareness (taste, scent, light &amp; shadow)">☕ 五感覺察（飲食、氣味、光影）</option>
+            <option value="🤝 微小善意 / Subtle Kindness" data-en="🤝 Subtle Kindness (giving, listening, smiling)">🤝 微小善意（給予、傾聽、微笑）</option>
+            <option value="🍃 自然連結 / Nature Connection" data-en="🍃 Nature Connection (plants, soil, dawn &amp; dusk)">🍃 自然連結（草木、泥土、晨昏）</option>
+            <option value="🧘 身心安頓 / Inner Peace" data-en="🧘 Inner Peace (reading, meditation, pause)">🧘 身心安頓（閱讀、冥想、停頓）</option>
+            <option value="custom" data-en="✨ Other small joys (custom)">✨ 其他幸福小事（自訂填入）</option>
           </select>
           
           <!-- 選取「其他」時展開的輸入框 -->
           <div class="custom-category-group" id="custom-cat-box">
-            <input type="text" id="custom_category" placeholder="例如：手作烘焙、山林獨處 / Custom category">
+            <input type="text" id="custom_category" placeholder="例如：手作烘焙、山林獨處 / Custom category" data-en-ph="e.g. Handmade baking, forest solitude">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="content">幸福感知內容<span class="label-en" lang="en">Moment of awareness</span></label>
-          <textarea id="content" rows="5" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意...&#10;Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..."></textarea>
+          <label for="content"><span class="label-zh">幸福感知內容</span><span class="label-en" lang="en">Moment of awareness</span></label>
+          <textarea id="content" rows="5" required placeholder="記錄當下的場景、氣味、一杯咖啡的溫度或一份善意...&#10;Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..." data-en-ph="Describe the scene, aroma, warmth of a brew, or a gentle act of kindness..."></textarea>
         </div>
 
         <button type="submit" id="submit-btn" class="btn-submit"><span class="btn-zh">存入這份幸福</span><span class="btn-en" lang="en">Deposit this moment</span></button>
@@ -590,7 +645,7 @@
     </section>
 
     <div class="toolbar">
-      <div class="divider-text"><span lang="en">MOMENTS OF LIGHT</span> • 幸福流動</div>
+      <div class="divider-text"><span lang="en">MOMENTS OF LIGHT</span><span class="div-zh"> • 幸福流動</span></div>
       <button class="btn-random" onclick="pickRandomMoment()"><span class="btn-zh">遇見一份微光</span><span class="btn-en" lang="en">Random</span></button>
     </div>
 
@@ -603,12 +658,12 @@
     </main>
 
     <section class="next-step">
-      <div class="eyebrow" lang="en">Next · 下一步</div>
-      <p>看完別人的微光，也許你會想起自己的。</p>
+      <div class="eyebrow" data-en="Next">Next · 下一步</div>
+      <p class="next-zh">看完別人的微光，也許你會想起自己的。</p>
       <p class="next-en" lang="en">Having read theirs, you may remember your own.</p>
       <div class="next-actions">
-        <a class="svc-cta" href="#happiness-form">存入一筆 →</a>
-        <a class="svc-cta quiet" href="https://alexchiachi.github.io/happy/journal.html">讀幸福誌 →</a>
+        <a class="svc-cta" href="#happiness-form"><span class="link-zh">存入一筆 →</span><span class="link-en" lang="en">Deposit one →</span></a>
+        <a class="svc-cta quiet" href="https://alexchiachi.github.io/happy/journal.html"><span class="link-zh">讀幸福誌 →</span><span class="link-en" lang="en">Read the journal →</span></a>
       </div>
     </section>
 
@@ -647,16 +702,34 @@
     const API_ENDPOINT = 'https://executive-table.jianchiachi.workers.dev/api/happiness';
     let globalLedgerData = [];
 
-    const BLESSINGS = [
-      "「慢下來，感知每一縷微風，生活原本就很美。」",
-      "「微小的善意如水滴，匯聚成無聲的長河。」",
-      "「在喧囂的時代裡，你的這一次停頓，照亮了自己。」",
-      "「每一杯茶的溫度、每一片落葉，都在安頓我們的靈魂。」",
-      "「大道至簡，幸福一直在當下的呼吸裡。」"
-    ];
+    const BLESSINGS = {
+      'zh-TW': [
+        "「慢下來，感知每一縷微風，生活原本就很美。」",
+        "「微小的善意如水滴，匯聚成無聲的長河。」",
+        "「在喧囂的時代裡，你的這一次停頓，照亮了自己。」",
+        "「每一杯茶的溫度、每一片落葉，都在安頓我們的靈魂。」",
+        "「大道至簡，幸福一直在當下的呼吸裡。」"
+      ],
+      'en': [
+        "\u201CSlow down. Feel each breath of wind \u2014 life was always beautiful.\u201D",
+        "\u201CTiny kindnesses are droplets, gathering into a silent river.\u201D",
+        "\u201CIn a noisy age, your single pause lights up yourself.\u201D",
+        "\u201CThe warmth of each cup of tea, each fallen leaf \u2014 they settle our souls.\u201D",
+        "\u201CThe Dao is simple: happiness lives in this very breath.\u201D"
+      ]
+    };
+    function currentLang() { return document.documentElement.lang === 'en' ? 'en' : 'zh-TW'; }
 
     // 每一種失敗都說清楚是什麼，而不是籠統的「出了一點小狀況」
     function errorMessage(code, data) {
+      if (currentLang() === 'en') {
+        if (code === 'too_short') return `A few more words, please \u2014 at least ${data.min || 10} characters.`;
+        if (code === 'invalid') return 'Please fill in both your moniker and your moment.';
+        if (code === 'rate_limited') return 'You have deposited several moments just now.<br>Pause a while \u2014 give your heart a moment of stillness.';
+        if (code === 'github_unavailable') return 'The ledger cannot be written right now. <strong>Your words are safely received</strong> and will be added later.';
+        if (code === 'too_large') return 'A bit too long \u2014 trim it down and try again.';
+        return 'Something came up while depositing. Your words are still above \u2014 press again in a moment.';
+      }
       if (code === 'too_short') return `再多寫幾個字吧，至少 ${data.min || 10} 個字。`;
       if (code === 'invalid') return '稱呼與內容都要填喔。';
       if (code === 'rate_limited') return '剛剛已經存入好幾筆了。<br>稍等片刻再來，給心靈留一點停頓的時間。';
@@ -732,7 +805,9 @@
       const lastSubmitTime = localStorage.getItem('last_happiness_submit');
       const now = Date.now();
       if (lastSubmitTime && now - parseInt(lastSubmitTime) < 30000) {
-        alert('請稍後片刻再存入下一筆紀錄，給心靈留一點停頓的時間。');
+        alert(currentLang() === 'en'
+          ? 'Please wait a moment before depositing the next entry \u2014 give your heart a pause.'
+          : '請稍後片刻再存入下一筆紀錄，給心靈留一點停頓的時間。');
         return;
       }
 
@@ -771,7 +846,9 @@
         waitForRecord(data.number);
       } catch (err) {
         // 連 Worker 都連不上：網路問題，或所在地區的網路限制
-        showFormNote('連不上存入服務。可能是網路或所在地區的限制。<br>你寫的文字還在上面，沒有遺失，稍後再按一次即可。');
+        showFormNote(currentLang() === 'en'
+          ? 'Cannot reach the deposit service \u2014 possibly a network or regional restriction.<br>Your words are still above, nothing is lost. Try again in a moment.'
+          : '連不上存入服務。可能是網路或所在地區的限制。<br>你寫的文字還在上面，沒有遺失，稍後再按一次即可。');
       } finally {
         btn.disabled = false;
         setButtonLabel(btn, '存入這份幸福', 'Deposit this moment');
@@ -796,15 +873,22 @@
     function showToast({ held = false } = {}) {
       const modal = document.getElementById('toast-modal');
       const poemBox = document.getElementById('toast-blessing');
-      const randomPoem = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
+      const poems = BLESSINGS[currentLang()];
+      const randomPoem = poems[Math.floor(Math.random() * poems.length)];
       poemBox.innerText = randomPoem;
 
       // 含外部連結的紀錄要等人工確認。說實話，不要假裝已經上牆。
       const title = document.getElementById('toast-title');
       const sub = document.getElementById('toast-sub');
-      title.textContent = held ? '微光已收下' : '微光已存入帳本';
+      const en = currentLang() === 'en';
+      const titleZh = held ? '微光已收下' : '微光已存入帳本';
+      const titleEn = held ? 'Moment received' : 'Moment deposited';
+      title.textContent = en ? titleEn : titleZh;
+      // 同步 data 屬性，切換語言時 setLang 才能正確交換
+      title.dataset.zh = titleZh;
+      title.dataset.en = titleEn;
       sub.textContent = held
-        ? 'Received — it will appear once a guardian has read it.'
+        ? 'Received \u2014 it will appear once a guardian has read it.'
         : 'Your moment is now permanently recorded.';
 
       lastFocusedBeforeToast = document.activeElement;
@@ -860,7 +944,7 @@
           <div class="card-content">${escapeHtml(item.content)}</div>
           <div class="card-meta-bottom">
             <span>Moment #${item.id}</span>
-            <time>${new Date(item.date).toLocaleDateString('zh-TW', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+            <time>${new Date(item.date).toLocaleDateString(currentLang() === 'en' ? 'en-US' : 'zh-TW', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
           </div>
         </article>
       `).join('');
@@ -868,7 +952,9 @@
 
     function pickRandomMoment() {
       if (!globalLedgerData.length) {
-        alert('目前帳本尚在靜候第一筆紀錄。');
+        alert(currentLang() === 'en'
+        ? 'The ledger is still awaiting its very first entry.'
+        : '目前帳本尚在靜候第一筆紀錄。');
         return;
       }
       const randomIndex = Math.floor(Math.random() * globalLedgerData.length);
@@ -909,6 +995,36 @@
     const onScroll = () => navEl.classList.toggle('scrolled', window.scrollY > 24);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+
+    // ===== 語言切換：同一頁中英切換，選擇記在 localStorage =====
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      try { localStorage.setItem('ledger-lang', lang); } catch (e) {}
+      // 有 data-en 的元素：中英交換（q 引言、eyebrow、option 選項）
+      document.querySelectorAll('[data-en]').forEach(function (el) {
+        if (el.dataset.zh === undefined) el.dataset.zh = el.textContent;
+        el.textContent = lang === 'en' ? el.dataset.en : el.dataset.zh;
+      });
+      // placeholder 另外處理
+      document.querySelectorAll('[data-en-ph]').forEach(function (el) {
+        if (el.dataset.zhPh === undefined) el.dataset.zhPh = el.getAttribute('placeholder') || '';
+        el.setAttribute('placeholder', lang === 'en' ? el.dataset.enPh : el.dataset.zhPh);
+      });
+      // 卡片牆日期語系跟著換
+      if (globalLedgerData.length) renderLedger(globalLedgerData);
+      else renderEmptyState(document.getElementById('ledger'));
+    }
+
+    document.getElementById('lang-toggle').addEventListener('click', function () {
+      setLang(currentLang() === 'en' ? 'zh-TW' : 'en');
+    });
+
+    // 初始化：讀取上次選擇；沒有就維持中文
+    (function initLang() {
+      var saved = null;
+      try { saved = localStorage.getItem('ledger-lang'); } catch (e) {}
+      if (saved === 'en' || saved === 'zh-TW') setLang(saved);
+    })();
 
     loadLedger();
   </script>
